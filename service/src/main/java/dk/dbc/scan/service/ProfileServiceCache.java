@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,15 @@ public class ProfileServiceCache {
         return new ProfileServiceCache(config);
     }
 
+    /**
+     * Lookup queryfilter for a given profile in profile-service
+     *
+     * @param agencyId   Agency with a profile
+     * @param profile    Name of profile
+     * @param trackingId Tracking
+     * @return Query filter as string
+     * @throws IOException If communication with the service fails
+     */
     @Timed
     @CacheResult(cacheName = "oaProfile",
                  exceptionCacheName = "oaProfileError",
@@ -87,6 +97,9 @@ public class ProfileServiceCache {
         }
     }
 
+    /**
+     * DTO for the profile-sergvice call
+     */
     private static class Response {
 
         public boolean success;
@@ -94,20 +107,37 @@ public class ProfileServiceCache {
         public String filterQuery;
     }
 
+    /**
+     * Easily readable map for argument passing to {@link UriBuilder}
+     */
     private static class Params extends HashMap<String, Object> {
 
+        private Params() {
+        }
+
+        /**
+         * Construct a kay/value map with content
+         *
+         * @param key   Name of key
+         * @param value Content to be substituted into uri
+         * @return map
+         */
         private static Params with(String key, Object value) {
             Params map = new Params();
             map.put(key, value);
             return map;
         }
 
+        /**
+         * Add a key/value to the map
+         *
+         * @param key   Name of key
+         * @param value Content to be substituted into uri
+         * @return self for chaining
+         */
         private Params and(String key, Object value) {
             put(key, value);
             return this;
-        }
-
-        private Params() {
         }
     }
 }

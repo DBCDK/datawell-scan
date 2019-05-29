@@ -67,6 +67,16 @@ public class SolrApi {
         return new SolrApi(config);
     }
 
+    /**
+     * Ask a SolR for the register value of this string
+     *
+     * @param fieldName  Name of the field
+     * @param fieldValue Search string to convert
+     * @return converted string
+     * @throws SolrServerException If the SolR is down or the field-analysis
+     *                             request is malformed
+     * @throws IOException         If communication with the SolR fails
+     */
     @Timed
     public String normalize(String fieldName, String fieldValue) throws SolrServerException, IOException {
         SolrClient client = config.getSolrClient();
@@ -103,6 +113,19 @@ public class SolrApi {
         throw new SolrServerException("FieldAnalysis: malformed response");
     }
 
+    /**
+     * Get a list of terms from a given register
+     *
+     * @param fieldName  Name of the field
+     * @param fieldValue Normalized search string
+     * @param cont       If the current term should be included in the result
+     * @param count      Number of terms to get
+     * @param trackingId For tracking of requests
+     * @return List of terms returned from SolR
+     * @throws SolrServerException If the SolR is down or the terms request is
+     *                             malformed
+     * @throws IOException         If communication with the SolR fails
+     */
     @Timed
     public List<String> scan(String fieldName, String fieldValue, boolean cont, int count, String trackingId) throws SolrServerException, IOException {
         ModifiableSolrParams req = new SolrQuery()
@@ -124,9 +147,18 @@ public class SolrApi {
         return terms.stream()
                 .map(TermsResponse.Term::getTerm)
                 .collect(toList());
-
     }
 
+    /**
+     *
+     * @param fieldName   Name of the field
+     * @param fieldValue  Normalized search string (from terms)
+     * @param filterQuery profile restrictions
+     * @return number of hits in said profile
+     * @throws SolrServerException If the SolR is down or the select request is
+     *                             malformed
+     * @throws IOException         If communication with the SolR fails
+     */
     @Timed
     public long getHitCount(String fieldName, String fieldValue, String filterQuery) throws SolrServerException, IOException {
         SolrQuery req = new SolrQuery()
@@ -143,6 +175,12 @@ public class SolrApi {
 
     private static final Pattern ZK = Pattern.compile("zk://([^/]*)(/.*)?/([^/]*)");
 
+    /**
+     * Make a SolrClient
+     *
+     * @param solrUrl http or zk url to a SolR
+     * @return client
+     */
     public static SolrClient makeSolrClient(String solrUrl) {
         Matcher zkMatcher = ZK.matcher(solrUrl);
         if (zkMatcher.matches()) {

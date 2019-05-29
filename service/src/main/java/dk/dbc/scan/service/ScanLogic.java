@@ -74,23 +74,55 @@ public class ScanLogic {
         return new ScanLogic(config, psCache, solr, mes);
     }
 
+    /**
+     * Callback when an asynchronous call is done
+     */
     private synchronized void inFlightDone() {
         hitCountInFlight.decrementAndGet();
         notify();
     }
 
+    /**
+     * Wait for all asynchronous calls to be completed
+     *
+     * @throws InterruptedException If the thread is interrupted
+     */
     private synchronized void awaitAllInFlight() throws InterruptedException {
         while (hitCountInFlight.get() != 0) {
             wait();
         }
     }
 
+    /**
+     * Get the number of terms that are valid for the result
+     *
+     * @return number of terms that are ready to be returned
+     */
     private int goodTermCount() {
         return (int) termsFound.stream()
                 .filter(ScanResponse.Term::hasTerms)
                 .count();
     }
 
+    /**
+     * Build result for scan
+     *
+     * @param register   The register to scan in
+     * @param term       The term to scan with
+     * @param cont       If current term shouldn't be included. This has the
+     *                   side-effect that if term is included, then it is normalized, by solr
+     *                   using a field-analysis request
+     * @param count      Number of terms wanted in result
+     * @param agencyId   Agency that performs the request
+     * @param profile    The profile that is used by the agency
+     * @param trackingId Tracking
+     * @return Response to end-user
+     * @throws IOException          In case of communication errors with solr
+     * @throws SolrServerException  In case of request syntax errors or invalid
+     *                              register name
+     * @throws InterruptedException If something is timing out, or the process
+     *                              is being shut down
+     */
     public ScanResponse.Result scan(String register, String term, boolean cont, int count, String agencyId, String profile, String trackingId) throws IOException, SolrServerException, InterruptedException {
         String scanRegister = register + "_" + agencyId + "_" + profile;
         hitCountInFlight = new AtomicInteger(0);
@@ -105,14 +137,14 @@ public class ScanLogic {
         log.debug("filterQuery = {}", filterQuery);
 
         Iterator<String> terms = EMPTY_ITERATOR;
-        while (count - goodTermCount() > 0) {
+        while (goodTermCount() < count) {
             if (!terms.hasNext()) {
                 if (term == null) {// We've reached end of index
                     log.debug("We've reached the end of the index");
                     break;
                 }
                 int toGo = count - goodTermCount();
-                int fetch = toGo + 5 + toGo / 8;
+                int fetch = toGo + 5 + toGo / 8; // extra terms to fetch, so that zero hits can be skipped
                 log.debug("fetch: {} new terms from {}", fetch, term);
                 List<String> scan = solr.scan(scanRegister, term, cont, fetch, trackingId);
                 cont = true;
@@ -123,6 +155,8 @@ public class ScanLogic {
                 log.trace("chould we check hitcount");
                 int goodTermCount = goodTermCount();
                 log.trace("goodTermCount = {}", goodTermCount);
+                if (goodTermCount >= count)
+                    break;
                 int toCheck = count - goodTermCount;
                 log.trace("toGo = {}", toCheck);
                 int notChecked = toCheck - hitCountInFlight.get();
@@ -164,5 +198,4 @@ public class ScanLogic {
         String continueAfter = validTermCount != count ? null : responseTerms.get(count - 1).getTerm();
         return new ScanResponse.Result(continueAfter, responseTerms);
     }
-
 }

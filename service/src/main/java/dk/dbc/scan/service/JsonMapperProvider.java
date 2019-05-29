@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package dk.dbc.scan.service;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -31,16 +32,17 @@ import javax.ws.rs.ext.Provider;
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
 @Provider
-@Produces({ MediaType.APPLICATION_JSON })
+@Produces({MediaType.APPLICATION_JSON})
 public class JsonMapperProvider implements ContextResolver<ObjectMapper> {
+
     private final ObjectMapper objectMapper;
 
     public JsonMapperProvider() {
         objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true)
-            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
     @Override
