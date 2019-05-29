@@ -104,7 +104,7 @@ public class SolrApi {
     }
 
     @Timed
-    public List<String> scan(String fieldName, String fieldValue, boolean cont, int count) throws SolrServerException, IOException {
+    public List<String> scan(String fieldName, String fieldValue, boolean cont, int count, String trackingId) throws SolrServerException, IOException {
         ModifiableSolrParams req = new SolrQuery()
                 .setRequestHandler("/terms")
                 .set("terms.sort", "index")
@@ -112,7 +112,9 @@ public class SolrApi {
                 .set("terms.lower", fieldValue)
                 .set("terms.lower.incl", !cont)
                 .set("terms.limit", count)
-                .set("terms.raw", false);
+                .set("terms.raw", false)
+                .set("trackingId", trackingId)
+                .set("agent", "datawell-scan-service");
         QueryResponse resp = config.getSolrClient().query(req);
         if (resp.getStatus() != 0) {
             log.warn("Error in request (terms): {} = {}", req, resp);

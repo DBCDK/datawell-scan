@@ -114,7 +114,7 @@ public class ScanLogic {
                 int toGo = count - goodTermCount();
                 int fetch = toGo + 5 + toGo / 8;
                 log.debug("fetch: {} new terms from {}", fetch, term);
-                List<String> scan = solr.scan(scanRegister, term, cont, fetch);
+                List<String> scan = solr.scan(scanRegister, term, cont, fetch, trackingId);
                 cont = true;
                 term = scan.size() != fetch ? null : scan.get(fetch - 1);
                 terms = scan.iterator();
