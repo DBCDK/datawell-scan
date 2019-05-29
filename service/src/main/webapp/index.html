@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Start Page</title>
+        <title>DataWell-Scan service</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>DataWell-Scan service</h1>
+
+        usage: /api/scan?agencyId=190102&AMP;profile=danbib&AMP;...
+        <dl>
+            <dt>agencyId</dt>
+            <dd>Required. 6 digit agencyid</dd>
+            <dt>profile</dt>
+            <dd>Required. Profile name</dd>
+            <dt>term</dt>
+            <dd>Required. where to start</dd>
+            <dt>register</dt>
+            <dd>Required. "full" register name ie scan.default</dd>
+            <dt>count</dt>
+            <dd>Optional. Number of terms wanted in response (default: 10)</dd>
+            <dt>continue</dt>
+            <dd>Optional, true/false if the term provided should be included in the response, if it is known (default: false)</dd>
+            <dt>trackingId</dt>
+            <dd>Optional. For tracking.<br>If none is provided one is generated</dd>
+        </dl>
     </body>
 </html>
