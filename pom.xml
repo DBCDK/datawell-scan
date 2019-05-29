@@ -24,7 +24,7 @@
     
     
     <properties>
-        <solr.version>8.1.0</solr.version>
+        <solr.version>8.0.0</solr.version>
     </properties>
 
     <modules>
@@ -55,25 +55,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
-<!--    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <configuration>
-                        <excludes>
-                            <exclude>**.*Request</exclude>
-                            <exclude>**.*Request.*</exclude>
-                            <exclude>**.*Request$*</exclude>
-                            <exclude>**.*Response</exclude>
-                            <exclude>**.*Response.*</exclude>
-                            <exclude>**.*Response$*</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>-->
 </project>
