@@ -167,8 +167,8 @@ public class SolrApi {
                 .setRows(0);
         QueryResponse resp = config.getSolrClient().query(req);
         if (resp.getStatus() != 0) {
-            log.warn("Error in request (terms): {} = {}", req, resp);
-            throw new SolrServerException("terms: error in request");
+            log.warn("Error in request (select): {} = {}", req, resp);
+            throw new SolrServerException("select: error in request");
         }
         return resp.getResults().getNumFound();
     }
