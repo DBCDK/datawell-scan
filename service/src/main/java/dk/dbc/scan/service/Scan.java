@@ -21,6 +21,7 @@ package dk.dbc.scan.service;
 import dk.dbc.log.LogWith;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 public class Scan {
 
     private static final Logger log = LoggerFactory.getLogger(Scan.class);
+    private static final Pattern ALPHA_NUM = Pattern.compile("\\w+");
 
     @Inject
     Config config;
@@ -83,9 +85,11 @@ public class Scan {
                     throw new IllegalArgumentException("Required parameter: agencyId is missing");
                 if (profile == null || profile.isEmpty())
                     throw new IllegalArgumentException("Required parameter: profile is missing");
+                if (!ALPHA_NUM.matcher(profile).matches())
+                    throw new IllegalArgumentException("Required parameter: profile contains invalid characters");
                 if (term == null)
                     throw new IllegalArgumentException("Required parameter: term is missing");
-                if (register == null)
+                if (register == null || register.isEmpty())
                     throw new IllegalArgumentException("Required parameter: register is missing");
                 if (count <= 0)
                     throw new IllegalArgumentException("Parameter: count needs to be a positive number");
