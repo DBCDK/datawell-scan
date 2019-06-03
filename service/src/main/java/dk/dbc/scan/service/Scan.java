@@ -95,6 +95,9 @@ public class Scan {
                     throw new IllegalArgumentException("Parameter: count needs to be a positive number");
                 count = Integer.min(count, config.getMaxCount());
 
+                log.info("req = {}, actual count = {}", requestParam, count);
+                requestParam.setCount(count);
+
                 String agencyId = String.format("%06d", agencyIdNum);
                 ScanResponse.Result result = scanLogic.scan(register, term, cont, count, agencyId, profile, trackingId);
                 return new ScanResponse.Success(requestParam, result);

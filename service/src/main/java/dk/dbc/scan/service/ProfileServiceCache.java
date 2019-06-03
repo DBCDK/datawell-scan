@@ -31,7 +31,6 @@ import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,17 +70,22 @@ public class ProfileServiceCache {
      * @throws IOException If communication with the service fails
      */
     @Timed
-    @CacheResult(cacheName = "oaProfile",
-                 exceptionCacheName = "oaProfileError",
+    @CacheResult(cacheName = "profileService",
+                 exceptionCacheName = "profileServiceError",
                  cachedExceptions = {ClientErrorException.class,
                                      ServerErrorException.class,
                                      IOException.class})
     public String filterQueryFor(@CacheKey String agencyId, @CacheKey String profile, String trackingId) throws IOException {
 
+        HashMap<String, Object> params = new HashMap<String, Object>() {
+            {
+                put("agencyId", agencyId);
+                put("profile", profile);
+                put("trackingId", trackingId);
+            }
+        };
         URI uri = config.getProfileService()
-                .buildFromMap(Params.with("agencyId", agencyId)
-                        .and("profile", profile)
-                        .and("trackingId", trackingId));
+                .buildFromMap(params);
 
         log.debug("fetching profile: {}", uri);
         try (InputStream is = config.getHttpClient()
@@ -98,46 +102,12 @@ public class ProfileServiceCache {
     }
 
     /**
-     * DTO for the profile-sergvice call
+     * DTO for the profile-service call
      */
     private static class Response {
 
         public boolean success;
         public String error;
         public String filterQuery;
-    }
-
-    /**
-     * Easily readable map for argument passing to {@link UriBuilder}
-     */
-    private static class Params extends HashMap<String, Object> {
-
-        private Params() {
-        }
-
-        /**
-         * Construct a kay/value map with content
-         *
-         * @param key   Name of key
-         * @param value Content to be substituted into uri
-         * @return map
-         */
-        private static Params with(String key, Object value) {
-            Params map = new Params();
-            map.put(key, value);
-            return map;
-        }
-
-        /**
-         * Add a key/value to the map
-         *
-         * @param key   Name of key
-         * @param value Content to be substituted into uri
-         * @return self for chaining
-         */
-        private Params and(String key, Object value) {
-            put(key, value);
-            return this;
-        }
     }
 }

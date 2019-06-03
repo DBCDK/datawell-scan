@@ -1,3 +1,20 @@
 {
-    "appName": "datawell-scan-service"
+    "appName": "datawell-scan-service",
+    "hazelcast": {
+        "clusterName": "solr-updater-${SCOPE}-${COLLECTION}",
+        "cacheConfig": {
+            "profileService": {
+                "timeout": "${CACHE_TIMEOUT}",
+                "timeUnit": "Seconds"
+            },
+            "profileServiceError": {
+                "timeout": "${CACHE_TIMEOUT_ERROR}",
+                "timeUnit": "Seconds"
+            },
+            "*": {
+                "timeout": "${CACHE_TIMEOUT}",
+                "timeUnit": "Seconds"
+            }
+        }
+    }
 }

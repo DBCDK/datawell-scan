@@ -34,7 +34,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
@@ -56,15 +55,11 @@ public class Config {
     private Client httpClient;
 
     public Config() {
-        this(System.getenv());
-    }
-
-    Config(Map<String, String> env) {
-        this.env = env;
+        this.env = System.getenv();
     }
 
     static Config instance() {
-        Config that = new Config(System.getenv());
+        Config that = new Config();
         that.init();
         return that;
     }
