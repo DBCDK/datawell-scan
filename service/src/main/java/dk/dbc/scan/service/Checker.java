@@ -51,12 +51,33 @@ public class Checker<T, E extends Exception> {
          * @throws Ex if the initial value is null
          */
         public <Ex extends Exception> Checker<T, Ex> raises(Function<T, Ex> newEx) throws Ex {
+            return new CheckerNotNullable<>(o, () -> newEx.apply(o));
+        }
+    }
+
+    public static class BuilderNullable<T> {
+
+        private final T o;
+
+        private BuilderNullable(T o) {
+            this.o = o;
+        }
+
+        /**
+         * Set the exception producer
+         *
+         * @param <Ex>  type of the exception
+         * @param newEx function that given current value produces an exception
+         * @return checker with new exception producer
+         * @throws Ex if the initial value is null
+         */
+        public <Ex extends Exception> Checker<T, Ex> raises(Function<T, Ex> newEx) throws Ex {
             return new Checker<>(o, () -> newEx.apply(o));
         }
     }
 
     /**
-     * Create a checker
+     * Create a checker that does not allow null values
      *
      * @param <T> type the the object to validate / extract from
      * @param o   the object in question
@@ -66,14 +87,38 @@ public class Checker<T, E extends Exception> {
         return new Builder<>(o);
     }
 
-    private final T o;
-    private final Supplier<E> ex;
+    /**
+     * Create a checker that allows null values
+     *
+     * @param <T> type the the object to validate / extract from
+     * @param o   the object in question
+     * @return checker object with generic error message
+     */
+    public static <T> BuilderNullable<T> ofNullable(T o) {
+        return new BuilderNullable<>(o);
+    }
 
-    private Checker(T o, Supplier<E> ex) throws E {
+    protected final T o;
+    protected final Supplier<E> ex;
+
+    Checker(T o, Supplier<E> ex) throws E {
         this.o = o;
         this.ex = ex;
-        if (o == null)
-            throw ex.get();
+    }
+
+    /**
+     * New object with values
+     * <p>
+     * This is used by inherited classes to generate object of right type
+     *
+     * @param <R> type of new value
+     * @param t   new value
+     * @param ex  exception supplier
+     * @return new checker
+     * @throws E if an error occurs in setting new value (invalid value)
+     */
+    protected <R> Checker<R, E> withNewValue(R t, Supplier<E> ex) throws E {
+        return new Checker<>(t, ex);
     }
 
     /**
@@ -97,8 +142,10 @@ public class Checker<T, E extends Exception> {
      * @throws E if value not of wanted type
      */
     public <R> Checker<R, E> as(Class<R> t) throws E {
+        if(o == null)
+            return withNewValue((R) o, ex);
         if (t.isAssignableFrom(o.getClass()))
-            return new Checker<>((R) o, ex);
+            return withNewValue((R) o, ex);
         throw ex.get();
     }
 
@@ -111,7 +158,7 @@ public class Checker<T, E extends Exception> {
      * @throws E if the mapper returns null
      */
     <R> Checker<R, E> mapTo(Function<T, R> mapper) throws E {
-        return new Checker<>(mapper.apply(o), ex);
+        return withNewValue(mapper.apply(o), ex);
     }
 
     /**
@@ -135,4 +182,5 @@ public class Checker<T, E extends Exception> {
     public T get() {
         return o;
     }
+
 }

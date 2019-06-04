@@ -25,13 +25,13 @@ import java.util.Map;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 /**
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class CheckerTest {
+public class CheckerNotNullableTest {
 
     @Test(timeout = 2_000L)
     public void testSimpleSuccess() throws Exception {
@@ -49,7 +49,7 @@ public class CheckerTest {
             }
         };
 
-        Long answer = Checker.ofNullable(obj)
+        Long answer = Checker.of(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .as(Map.class)
                 .ensure(o -> !o.isEmpty())
@@ -63,20 +63,18 @@ public class CheckerTest {
         assertThat(answer, is(42L));
     }
 
-    @Test(timeout = 2_000L)
-    public void testNullObject() throws Exception {
-        System.out.println("testNullObject");
-        Object ret = Checker.ofNullable(null)
-                .raises(o -> new Exception("error in: " + o))
-                .get();
-        assertThat(ret, nullValue());
+    @Test(timeout = 2_000L, expected = Exception.class)
+    public void testNullObjectError() throws Exception {
+        System.out.println("testNullObjectError");
+        Checker.of(null)
+                .raises(o -> new Exception("error in: " + o));
     }
 
     @Test(timeout = 2_000L, expected = Exception.class)
     public void testTypeError() throws Exception {
         System.out.println("testTypeError");
         Object obj = new HashMap<String, Object>();
-        Checker.ofNullable(obj)
+        Checker.of(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .as(List.class);
     }
@@ -85,28 +83,36 @@ public class CheckerTest {
     public void testPredicateError() throws Exception {
         System.out.println("testPredicateError");
         HashMap<String, Object> obj = new HashMap<>();
-        Checker.ofNullable(obj)
+        Checker.of(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .ensure(o -> o.size() >= 1);
+    }
+
+    @Test(timeout = 2_000L, expected = Exception.class)
+    public void testMapToNullError() throws Exception {
+        System.out.println("testMapToNullError");
+        HashMap<String, Object> obj = new HashMap<>();
+        Checker.of(obj)
+                .raises(o -> new Exception("error in: " + o))
+                .mapTo(o -> null);
     }
 
     @Test(timeout = 2_000L, expected = RuntimeException.class)
     public void testChangeRaises() throws Exception {
         System.out.println("testChangeRaises");
         HashMap<String, Object> obj = new HashMap<>();
-        Checker.ofNullable(obj)
+        Checker.of(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .raises(o -> new RuntimeException("error in: " + o))
-                .as(List.class);
+                .mapTo(o -> null);
     }
 
     @Test(timeout = 2_000L)
-    public void testMapToNull() throws Exception {
-        System.out.println("testMapToNull");
-        HashMap<String, Object> obj = new HashMap<>();
-        Object ret = Checker.ofNullable(obj)
+    public void testTypeOfNull() throws Exception {
+        System.out.println("testTypeOfNull");
+        Object ret = Checker.ofNullable(null)
                 .raises(o -> new Exception("error in: " + o))
-                .mapTo(o -> null)
+                .as(List.class)
                 .get();
         assertThat(ret, nullValue());
     }
