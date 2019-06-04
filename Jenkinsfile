@@ -136,4 +136,7 @@ pipeline {
             }
         }
     }
+    post {
+        archiveArtifacts artifacts: 'target/site/**/*', fingerprint: false
+    }
 }
