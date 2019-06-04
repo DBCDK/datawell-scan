@@ -144,7 +144,10 @@ public class ScanLogic {
                     break;
                 }
                 int toGo = count - goodTermCount();
-                int fetch = toGo + 5 + toGo / 8; // extra terms to fetch, so that zero hits can be skipped
+                // We need to fetch extra terms, so that if any gives a 0-hit
+                // they can be skipped. These number +5 +12.5%are just gut
+                // feeling, that it should be sufficient.
+                int fetch = toGo + 5 + toGo / 8;
                 log.debug("fetch: {} new terms from {}", fetch, term);
                 List<String> scan = solr.scan(scanRegister, term, cont, fetch, trackingId);
                 cont = true;
