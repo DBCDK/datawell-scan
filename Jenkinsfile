@@ -137,6 +137,8 @@ pipeline {
         }
     }
     post {
-        archiveArtifacts artifacts: 'target/site/**/*', fingerprint: false
+        always {
+            archiveArtifacts artifacts: 'target/site/**/*', fingerprint: false
+        }
     }
 }
