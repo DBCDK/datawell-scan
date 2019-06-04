@@ -137,8 +137,8 @@ pipeline {
         }
     }
     post {
-        always {
-            archiveArtifacts artifacts: 'target/site/**/*', fingerprint: false
+        success {
+            step([$class: 'JavadocArchiver', javadocDir: 'target/site/apidocs', keepAll: false])
         }
     }
 }
