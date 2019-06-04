@@ -3,7 +3,7 @@
  *
  * This is part of scan-service
  *
- * scan-service is free software: you can redistribute it and/or modify
+ * scan-service is free software: you can redistribute it and/or mapTo
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -71,7 +71,7 @@ public class SolrApi {
      * Ask a SolR for the register value of this string
      *
      * @param fieldName  Name of the field
-     * @param fieldValue Search string to convert
+     * @param fieldValue Search string to mapTo
      * @return converted string
      * @throws SolrServerException If the SolR is down or the field-analysis
      *                             request is malformed
@@ -85,32 +85,23 @@ public class SolrApi {
         req.setFieldValue(fieldValue);
         NamedList<Object> resp = client.request(req);
 
-        boolean success = String.valueOf(resp.findRecursive("responseHeader", "status"))
-                .equals("0");
-        if (success) {
-            Object analysisSpecObj = resp.findRecursive("analysis", "field_names", fieldName, "index");
-            if (analysisSpecObj != null && analysisSpecObj instanceof NamedList) {
-                NamedList<Object> analysisSpec = (NamedList<Object>) analysisSpecObj;
-                if (analysisSpec.size() != 0) {
-                    Object lastAnalysisObj = analysisSpec.getVal(analysisSpec.size() - 1);
-                    if (lastAnalysisObj != null && lastAnalysisObj instanceof List) {
-                        List<Object> lastAnalysis = (List<Object>) lastAnalysisObj;
-                        if (!lastAnalysis.isEmpty()) {
-                            Object lastAnalysisDescObj = lastAnalysis.get(lastAnalysis.size() - 1);
-                            if (lastAnalysisDescObj != null && lastAnalysisDescObj instanceof NamedList) {
-                                NamedList<Object> lastAnalysisDesc = (NamedList<Object>) lastAnalysisDescObj;
-                                Object text = lastAnalysisDesc.get("text");
-                                if (text instanceof String) {
-                                    return (String) text;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        log.warn("Error in response (FieldAnalysis): {}", resp);
-        throw new SolrServerException("FieldAnalysis: malformed response");
+        return Checker.of(resp)
+                .raises(o -> {
+                    log.warn("Error in response (FieldAnalysis): {}", o);
+                    return new SolrServerException("FieldAnalysis: malformed response");
+                })
+                .ensure(o -> o.findRecursive("responseHeader", "status").equals(0))
+                .mapTo(o -> o.findRecursive("analysis", "field_names", fieldName, "index"))
+                .as(NamedList.class)
+                .ensure(o -> o.size() != 0) // Non-empty tokenizer/filter list
+                .mapTo(o -> o.getVal(o.size() - 1)) // last tokenizer/filter
+                .as(List.class)
+                .ensure(o -> o.size() == 1) // has not been tokenized
+                .mapTo(o -> o.get(0)) // get only element
+                .as(NamedList.class)
+                .mapTo(o -> o.get("text")) // "text" is tokenized input
+                .as(String.class)
+                .get();
     }
 
     /**
