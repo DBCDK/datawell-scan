@@ -76,8 +76,31 @@ public class Checker<T, E extends Exception> {
         }
     }
 
+    public static class BuilderNullSafe<T> {
+
+        private final T o;
+
+        private BuilderNullSafe(T o) {
+            this.o = o;
+        }
+
+        /**
+         * Set the exception producer
+         *
+         * @param <Ex>  type of the exception
+         * @param newEx function that given current value produces an exception
+         * @return checker with new exception producer
+         * @throws Ex if the initial value is null
+         */
+        public <Ex extends Exception> Checker<T, Ex> raises(Function<T, Ex> newEx) throws Ex {
+            return new CheckerNullSafe<>(o, () -> newEx.apply(o));
+        }
+    }
+
     /**
      * Create a checker that does not allow null values
+     * <p>
+     * Uses {@link CheckerNotNullable} implementation
      *
      * @param <T> type the the object to validate / extract from
      * @param o   the object in question
@@ -96,6 +119,20 @@ public class Checker<T, E extends Exception> {
      */
     public static <T> BuilderNullable<T> ofNullable(T o) {
         return new BuilderNullable<>(o);
+    }
+
+    /**
+     * Create a checker that allows null values
+     * <p>
+     * Uses {@link CheckerNullSafe} implementation
+     * When the value is {@literal null} mapTo is not called
+     *
+     * @param <T> type the the object to validate / extract from
+     * @param o   the object in question
+     * @return checker object with generic error message
+     */
+    public static <T> BuilderNullSafe<T> nullSafeOf(T o) {
+        return new BuilderNullSafe<>(o);
     }
 
     protected final T o;
@@ -142,7 +179,7 @@ public class Checker<T, E extends Exception> {
      * @throws E if value not of wanted type
      */
     public <R> Checker<R, E> as(Class<R> t) throws E {
-        if(o == null)
+        if (o == null)
             return withNewValue((R) o, ex);
         if (t.isAssignableFrom(o.getClass()))
             return withNewValue((R) o, ex);

@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class CheckerNotNullableTest {
+public class CheckerNullSafeTest {
 
     @Test(timeout = 2_000L)
     public void testSimpleSuccess() throws Exception {
@@ -49,7 +49,7 @@ public class CheckerNotNullableTest {
             }
         };
 
-        Long answer = Checker.of(obj)
+        Long answer = Checker.nullSafeOf(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .as(Map.class)
                 .ensure(o -> !o.isEmpty())
@@ -63,18 +63,20 @@ public class CheckerNotNullableTest {
         assertThat(answer, is(42L));
     }
 
-    @Test(timeout = 2_000L, expected = Exception.class)
+    @Test(timeout = 2_000L)
     public void testNullObjectError() throws Exception {
         System.out.println("testNullObjectError");
-        Checker.of(null)
-                .raises(o -> new Exception("error in: " + o));
+        Object ret = Checker.nullSafeOf(null)
+                .raises(o -> new Exception("error in: " + o))
+                .get();
+        assertThat(ret, nullValue());
     }
 
     @Test(timeout = 2_000L, expected = Exception.class)
     public void testTypeError() throws Exception {
         System.out.println("testTypeError");
         Object obj = new HashMap<String, Object>();
-        Checker.of(obj)
+        Checker.nullSafeOf(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .as(List.class);
     }
@@ -83,28 +85,39 @@ public class CheckerNotNullableTest {
     public void testPredicateError() throws Exception {
         System.out.println("testPredicateError");
         HashMap<String, Object> obj = new HashMap<>();
-        Checker.of(obj)
+        Checker.nullSafeOf(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .ensure(o -> o.size() >= 1);
     }
 
-    @Test(timeout = 2_000L, expected = Exception.class)
-    public void testMapToNullError() throws Exception {
+    @Test(timeout = 2_000L)
+    public void testMapToNull() throws Exception {
         System.out.println("testMapToNullError");
         HashMap<String, Object> obj = new HashMap<>();
-        Checker.of(obj)
+        Object ret = Checker.nullSafeOf(obj)
                 .raises(o -> new Exception("error in: " + o))
-                .mapTo(o -> null);
+                .mapTo(o -> null)
+                .get();
+        assertThat(ret, nullValue());
+    }
+
+    @Test(timeout = 2_000L)
+    public void testNullMapping() throws Exception {
+        System.out.println("testNullMapping");
+        Object ret = Checker.nullSafeOf(null)
+                .raises(o -> new Exception("error in: " + o))
+                .mapTo(o -> o.toString())
+                .get();
+        assertThat(ret, nullValue());
     }
 
     @Test(timeout = 2_000L, expected = RuntimeException.class)
     public void testChangeRaises() throws Exception {
         System.out.println("testChangeRaises");
         HashMap<String, Object> obj = new HashMap<>();
-        Checker.of(obj)
+        Checker.nullSafeOf(obj)
                 .raises(o -> new Exception("error in: " + o))
                 .raises(o -> new RuntimeException("error in: " + o))
-                .mapTo(o -> null);
+                .ensure(o -> false);
     }
-
 }

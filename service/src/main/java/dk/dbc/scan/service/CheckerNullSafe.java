@@ -23,24 +23,32 @@ import java.util.function.Supplier;
 
 /**
  *
+ * Implementation of {@link Checker} that ensures that mapTo function is not
+ * called with null values
+ *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-class CheckerNotNullable<T, E extends Exception> extends Checker<T, E> {
+class CheckerNullSafe<T, E extends Exception> extends Checker<T, E> {
 
-    CheckerNotNullable(T o, Supplier<E> ex) throws E {
+    CheckerNullSafe(T o, Supplier<E> ex) throws E {
         super(o, ex);
-        if (o == null)
-            throw ex.get();
     }
 
     @Override
     protected <R> Checker<R, E> withNewValue(R t, Supplier<E> ex) throws E {
-        return new CheckerNotNullable<>(t, ex);
+        return new CheckerNullSafe<>(t, ex);
     }
 
     @Override
     public <Ex extends Exception> Checker<T, Ex> raises(Function<T, Ex> newEx) throws Ex {
-        return new CheckerNotNullable<>(o, () -> newEx.apply(o));
+        return new CheckerNullSafe<>(o, () -> newEx.apply(o));
+    }
+
+    @Override
+    <R> Checker<R, E> mapTo(Function<T, R> mapper) throws E {
+        if (o == null)
+            return withNewValue(null, ex);
+        return super.mapTo(mapper);
     }
 
 }

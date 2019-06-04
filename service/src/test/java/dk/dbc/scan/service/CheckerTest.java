@@ -111,4 +111,13 @@ public class CheckerTest {
         assertThat(ret, nullValue());
     }
 
+    @Test(timeout = 2_000L)
+    public void testTypeOfNull() throws Exception {
+        System.out.println("testTypeOfNull");
+        Object ret = Checker.ofNullable(null)
+                .raises(o -> new Exception("error in: " + o))
+                .as(List.class)
+                .get();
+        assertThat(ret, nullValue());
+    }
 }
