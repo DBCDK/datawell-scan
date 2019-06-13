@@ -33,7 +33,8 @@ public class ScanServiceApplication extends Application {
 
     private static final Set<Class<?>> CLASSES = new HashSet<>(
             Arrays.asList(
-                    Scan.class
+                    Scan.class,
+                    StatusBean.class
             ));
 
     @Override
