@@ -1,7 +1,7 @@
 {
     "appName": "datawell-scan-service",
     "hazelcast": {
-        "clusterName": "solr-updater-${SCOPE}-${COLLECTION}",
+        "clusterName": "datawell-scan-${SCOPE}",
         "cacheConfig": {
             "profileService": {
                 "timeout": "${CACHE_TIMEOUT}",
