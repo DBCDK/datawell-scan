@@ -1,7 +1,7 @@
 {
     "appName": "datawell-scan-service",
     "hazelcast": {
-        "clusterName": "datawell-scan-${SCOPE}",
+        "clusterName": "datawell-scan-${SYSTEM_NAME}",
         "cacheConfig": {
             "profileService": {
                 "timeout": "${CACHE_TIMEOUT}",
