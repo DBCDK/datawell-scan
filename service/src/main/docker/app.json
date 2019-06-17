@@ -1,5 +1,6 @@
 {
     "appName": "datawell-scan-service",
+    "profiles": ["solr-client"],
     "hazelcast": {
         "clusterName": "datawell-scan-${SYSTEM_NAME}",
         "cacheConfig": {
