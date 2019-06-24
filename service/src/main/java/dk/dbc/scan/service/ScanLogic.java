@@ -129,7 +129,8 @@ public class ScanLogic {
         termsFound = new ArrayList<>();
 
         if (!cont) {
-            term = solr.normalize(register, term);
+            if (!term.trim().isEmpty())
+                term = solr.normalize(register, term);
             log.debug("normalized = {}", term);
         }
 
@@ -169,19 +170,25 @@ public class ScanLogic {
                 if (toQueue <= 0)
                     break;
 
-                ScanResponse.Term checkTerm = new ScanResponse.Term(terms.next());
+                String word = terms.next();
+                if (word.trim().isEmpty())
+                    continue; // Skip blank terms (you cannot search them)
+
+                ScanResponse.Term checkTerm = new ScanResponse.Term(word);
                 termsFound.add(checkTerm);
                 log.debug("added checkTerm = {}", checkTerm);
                 hitCountInFlight.incrementAndGet();
                 mes.submit(() -> {
+                    long hitcount = 0;
                     try {
-                        long hitcount = solr.getHitCount(register, checkTerm.getTerm(), filterQuery);
-                        checkTerm.setCount(hitcount);
-                        log.debug("changed checkTerm = {}", checkTerm);
-                        inFlightDone();
+                        hitcount = solr.getHitCount(register, checkTerm.getTerm(), filterQuery);
                     } catch (SolrServerException | IOException ex) {
                         log.error("Error checking real hit count for: {}: {}", checkTerm.getTerm(), ex.getMessage());
                         log.debug("Error checking real hit count for: {}: ", checkTerm.getTerm(), ex);
+                    } finally {
+                        checkTerm.setCount(hitcount);
+                        inFlightDone();
+                        log.debug("changed checkTerm = {}", checkTerm);
                     }
                 });
             }
