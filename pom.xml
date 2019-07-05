@@ -29,6 +29,7 @@
 
     <modules>
         <module>service</module>
+        <module>profile-change</module>
     </modules>
 
     <dependencyManagement>
