@@ -174,7 +174,7 @@ public class Arguments {
         return errors;
     }
 
-    public ExitException usage(String error) {
+    public final ExitException usage(String error) {
 
         addPositionalArguments();
 

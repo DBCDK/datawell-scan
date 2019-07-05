@@ -29,9 +29,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -171,7 +169,7 @@ public class Arguments {
         return Arrays.stream(getOpt(queue, null).split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public List<String> getProfiles() {
@@ -231,7 +229,7 @@ public class Arguments {
         return errors;
     }
 
-    public ExitException usage(String error) {
+    public final ExitException usage(String error) {
 
         addPositionalArguments();
 
