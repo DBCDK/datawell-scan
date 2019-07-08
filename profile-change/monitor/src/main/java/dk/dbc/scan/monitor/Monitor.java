@@ -61,7 +61,9 @@ public class Monitor {
     }
 
     ProfileDB createProfileDb(Arguments arguments) {
-        return new ProfileDB(arguments.getDb());
+        ProfileDB profileDB = new ProfileDB(arguments.getDb());
+        profileDB.migrate();
+        return profileDB;
     }
 
     ProfileServiceActions createProfileServiceActions(Arguments arguments) {

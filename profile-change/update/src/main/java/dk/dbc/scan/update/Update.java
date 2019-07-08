@@ -111,7 +111,9 @@ public class Update {
     }
 
     ProfileDB createProfileDb(Arguments arguments) {
-        return new ProfileDB(arguments.getProfileDb());
+        ProfileDB profileDB = new ProfileDB(arguments.getProfileDb());
+        profileDB.migrate();
+        return profileDB;
     }
 
     SolrDocStoreDB createSolrDocStoreDb(Arguments arguments) {
