@@ -30,12 +30,6 @@ public class ExitException extends RuntimeException {
     public ExitException(int exitCode) {
         this.exitCode = exitCode;
     }
-
-    public ExitException(int exitCode, String string) {
-        super(string);
-        this.exitCode = exitCode;
-    }
-
     public int getExitCode() {
         return exitCode;
     }

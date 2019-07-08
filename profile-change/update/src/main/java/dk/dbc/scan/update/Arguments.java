@@ -49,7 +49,6 @@ import static java.util.stream.Collectors.*;
  */
 public class Arguments {
 
-
     private final Options options;
     private final Option help;
     private final Option verbose;
@@ -166,10 +165,13 @@ public class Arguments {
     }
 
     public List<String> getQueues() {
-        return Arrays.stream(getOpt(queue, null).split(","))
+        List<String> queues = Arrays.stream(getOpt(queue, null).split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(toList());
+        if(queues.isEmpty())
+            throw usage("Queues set, but no queues defined?");
+        return queues;
     }
 
     public List<String> getProfiles() {
@@ -234,7 +236,7 @@ public class Arguments {
         addPositionalArguments();
 
         boolean hasError = error != null && !error.isEmpty();
-        OutputStream os = hasError ? System.err : System.out;
+        OutputStream os = getOutputStream(hasError);
         try (Writer osWriter = new OutputStreamWriter(os, StandardCharsets.UTF_8) ;
              PrintWriter writer = new PrintWriter(osWriter)) {
             HelpFormatter formatter = new HelpFormatter();
@@ -254,6 +256,10 @@ public class Arguments {
         if (hasError)
             return new ExitException(1);
         return new ExitException(0);
+    }
+
+    OutputStream getOutputStream(boolean hasError) {
+        return hasError ? System.err : System.out;
     }
 
     private static char c = '\u00e0'; // Positional late in the alphabet.
