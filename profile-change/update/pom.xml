@@ -214,7 +214,6 @@
                         </goals>
                         <configuration>
                             <finalName>${project.artifactId}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
