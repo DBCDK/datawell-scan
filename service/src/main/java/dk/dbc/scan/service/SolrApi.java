@@ -32,6 +32,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.apache.solr.client.solrj.request.FieldAnalysisRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.TermsResponse;
@@ -79,17 +80,20 @@ public class SolrApi {
      */
     @Timed
     public String normalize(String fieldName, String fieldValue) throws SolrServerException, IOException {
-        SolrClient client = config.getSolrClient();
-        FieldAnalysisRequest req = new FieldAnalysisRequest();
-        req.setFieldNames(Collections.singletonList(fieldName));
-        req.setFieldValue(fieldValue);
-        NamedList<Object> resp = client.request(req);
+        ModifiableSolrParams req = new SolrQuery()
+                .setRequestHandler("/analysis/field")
+                .set("analysis.fieldname", fieldName)
+                .set("analysis.fieldvalue", fieldValue)
+                .set("agent", "datawell-scan-service");
+        QueryResponse resp = config.getSolrClient().query(req);
 
         return Checker.of(resp)
                 .raises(o -> {
                     log.warn("Error in response (FieldAnalysis): {}", o);
                     return new SolrServerException("FieldAnalysis: malformed response");
                 })
+                .ensure(o -> o.getStatus() == 0)
+                .mapTo(o -> o.getResponse())
                 .ensure(o -> o.findRecursive("responseHeader", "status").equals(0))
                 .mapTo(o -> o.findRecursive("analysis", "field_names", fieldName, "index"))
                 .as(NamedList.class)
@@ -155,6 +159,7 @@ public class SolrApi {
         SolrQuery req = new SolrQuery()
                 .setQuery(fieldName + ":" + ClientUtils.escapeQueryChars(fieldValue))
                 .setFilterQueries(filterQuery)
+                .setParam("agent", "datawell-scan-service")
                 .setRows(0);
         QueryResponse resp = config.getSolrClient().query(req);
         if (resp.getStatus() != 0) {
