@@ -48,21 +48,29 @@ public class Update {
 
         ProfileServiceActions profileService = createProfileServiceActions(arguments);
         ProfileDB profileDb = createProfileDb(arguments);
-        SolrDocStoreDB solrDocStoreDb = createSolrDocStoreDb(arguments);
-        SolrApi solrApi = createSolrApi(arguments);
 
-        List<String> queues;
-        if (arguments.hasQueue()) {
-            queues = arguments.getQueues();
-        } else {
-            queues = solrDocStoreDb.getQueues();
-        }
         for (String profileName : arguments.getProfiles()) {
             Profile profile = profileService.getProfile(profileName);
             currentProfiles.put(profileName, profile);
         }
 
         Map<String, Profile> storedProfiles = profileDb.readProfiles();
+
+        if (!arguments.isOnlySyncDatabase()) {
+            SolrDocStoreDB solrDocStoreDb = createSolrDocStoreDb(arguments);
+            SolrApi solrApi = createSolrApi(arguments);
+            List<String> queues = arguments.hasQueue() ? arguments.getQueues() : solrDocStoreDb.getQueues();
+            int batchSize = arguments.getBatchSize();
+            if (!requeue(storedProfiles, currentProfiles, solrDocStoreDb, solrApi, queues, batchSize))
+                return false;
+        }
+        log.info("Updating database to reflect current profiles");
+        profileDb.updateProfiles(storedProfiles, currentProfiles);
+        return true;
+    }
+
+    private boolean requeue(Map<String, Profile> storedProfiles, HashMap<String, Profile> currentProfiles, SolrDocStoreDB solrDocStoreDb, SolrApi solrApi, List<String> queues, int batchSize) throws IOException, SQLException {
+
         HashSet<String> collectionIdentifiers = new HashSet<>();
         HashSet<String> holdingsAgencies = new HashSet<>();
         Profile.allAffectedCollections(storedProfiles, currentProfiles, collectionIdentifiers, holdingsAgencies);
@@ -83,10 +91,9 @@ public class Update {
                 .forEach(q -> System.out.println("  queue: " + q));
         String query = SolrApi.queryFrom(collectionIdentifiers, holdingsAgencies);
         log.debug("using query: {}", query);
-
         try (Connection connection = solrDocStoreDb.getConnection() ;
              BatchQueueSupplier<QueueJob> supplier = new QueueSupplier<>(QueueJob.STORAGE_ABSTRACTION)
-                     .batchSupplier(connection, arguments.getBatchSize())) {
+                     .batchSupplier(connection, batchSize)) {
             connection.setAutoCommit(true);
 
             solrApi.manifestationIdStreamOf(query)
@@ -100,8 +107,6 @@ public class Update {
         } catch (ReThrowException ex) {
             ex.throwAs(SQLException.class);
         }
-        log.info("Updating database to reflect current profiles");
-        profileDb.updateProfiles(storedProfiles, currentProfiles);
         return true;
     }
 

@@ -59,6 +59,7 @@ public class Arguments {
     private final Option profileService;
     private final Option queue;
     private final Option quiet;
+    private final Option onlySyncDb;
 
     private CommandLine commandLine;
     private final List<String> profiles;
@@ -116,6 +117,10 @@ public class Arguments {
                         .required()
                         .argName("URL")
                         .desc("The root of the profile service")
+                        .build())
+                .addOption(this.onlySyncDb = Option.builder("D")
+                        .longOpt("only-sync-database")
+                        .desc("Don't enqueue only sync profile cache database")
                         .build());
 
         try {
@@ -164,12 +169,16 @@ public class Arguments {
         return commandLine.hasOption(queue.getLongOpt());
     }
 
+    public boolean isOnlySyncDatabase() {
+        return commandLine.hasOption(onlySyncDb.getLongOpt());
+    }
+
     public List<String> getQueues() {
         List<String> queues = Arrays.stream(getOpt(queue, null).split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(toList());
-        if(queues.isEmpty())
+        if (queues.isEmpty())
             throw usage("Queues set, but no queues defined?");
         return queues;
     }
