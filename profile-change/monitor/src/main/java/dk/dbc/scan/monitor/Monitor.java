@@ -44,8 +44,6 @@ public class Monitor {
         this.out = out;
     }
 
-
-
     public boolean run(Arguments arguments) throws IOException, SQLException {
         HashMap<String, Profile> currentProfiles = new HashMap<>();
         ProfileServiceActions profileService = createProfileServiceActions(arguments);
@@ -87,10 +85,10 @@ public class Monitor {
                 same = false;
                 out.println("Profile " + profileName + " is removed");
             } else {
-                HashSet<String> added = new HashSet<>(b);
-                added.removeAll(a);
-                HashSet<String> removed = new HashSet<>(a);
-                removed.removeAll(b);
+                HashSet<String> added = new HashSet<>(a);
+                added.removeAll(b);
+                HashSet<String> removed = new HashSet<>(b);
+                removed.removeAll(a);
                 if (!added.isEmpty() || !removed.isEmpty()) {
                     same = false;
                     out.println("Profile " + profileName + " is changed");

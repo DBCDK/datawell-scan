@@ -138,8 +138,8 @@ public class MonitorIT {
 
         assertThat(same, is(false));
         assertThat(output, containsString("Profile 102030-danbib is changed"));
-        assertThat(output, containsString("Added collectionIdentifiers: 102030-katalog"));
-        assertThat(output, containsString("Removed collectionIdentifiers: 800000-danbib"));
+        assertThat(output, containsString("Removed collectionIdentifiers: 102030-katalog"));
+        assertThat(output, containsString("Added collectionIdentifiers: 800000-danbib"));
     }
 
     @Test(timeout = 2_000L)
