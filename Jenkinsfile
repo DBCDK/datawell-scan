@@ -45,7 +45,7 @@ pipeline {
 
                     def status = sh returnStatus: true, script:  """
                         rm -rf \$WORKSPACE/.repo
-                        mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo dependency:resolve dependency:resolve-plugins >/dev/null
+                        mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo dependency:resolve dependency:resolve-plugins >/dev/null 2>&1 || true
                         mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo clean
                         mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo --fail-at-end org.jacoco:jacoco-maven-plugin:prepare-agent install -Dsurefire.useFile=false
                     """
@@ -139,6 +139,7 @@ pipeline {
     post {
         success {
             step([$class: 'JavadocArchiver', javadocDir: 'target/site/apidocs', keepAll: false])
+            archiveArtifacts artifacts: '**/target/*-jar-with-dependencies.jar', fingerprint: true
         }
     }
 }
