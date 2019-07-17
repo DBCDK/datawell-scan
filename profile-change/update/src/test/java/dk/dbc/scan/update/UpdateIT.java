@@ -22,19 +22,12 @@ import dk.dbc.scan.common.Profile;
 import dk.dbc.scan.common.ProfileDB;
 import dk.dbc.scan.common.ProfileServiceActions;
 import dk.dbc.scan.common.ReThrowException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -85,6 +78,7 @@ public class UpdateIT extends DB {
             ProfileServiceActions createProfileServiceActions(Arguments arguments) {
                 return ReThrowException.wrap(() -> {
                     ProfileServiceActions m = mock(ProfileServiceActions.class);
+                    when(m.getProfiles(anyList())).thenCallRealMethod();
                     when(m.getProfile("777777-me"))
                             .thenReturn(profile);
                     return m;

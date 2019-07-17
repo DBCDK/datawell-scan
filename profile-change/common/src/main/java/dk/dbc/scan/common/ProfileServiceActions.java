@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -81,6 +82,14 @@ public class ProfileServiceActions {
             log.warn("Got an error: {} for: {}", resp.error, uri);
             throw new ServerErrorException(resp.error, javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public Map<String, Profile> getProfiles(List<String> profileNames) throws IOException {
+        HashMap<String, Profile> collection = new HashMap<>();
+        for (String profileName : profileNames) {
+            collection.put(profileName, getProfile(profileName));
+        }
+        return collection;
     }
 
     public static class Response {
