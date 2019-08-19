@@ -53,7 +53,7 @@ public class MonitorIT {
         if (port != null) {
             pgUrl = "localhost:" + port + "/profiledb";
         } else {
-            pgUrl = "duser:dpass@localhost/data";
+            pgUrl = "bogeskov:bogeskov@localhost/data";
         }
         profileDb = new ProfileDB(pgUrl);
         profileDb.migrate();
@@ -242,6 +242,7 @@ public class MonitorIT {
             ProfileServiceActions createProfileServiceActions(Arguments arguments) {
                 try {
                     ProfileServiceActions m = mock(ProfileServiceActions.class);
+                    when(m.getProfiles(anyList())).thenCallRealMethod();
                     when(m.getProfile(anyString()))
                             .then(i -> {
                                 String profileName = i.getArgument(0);

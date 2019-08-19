@@ -24,7 +24,6 @@ import dk.dbc.scan.common.ProfileDB;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -45,12 +44,8 @@ public class Monitor {
     }
 
     public boolean run(Arguments arguments) throws IOException, SQLException {
-        HashMap<String, Profile> currentProfiles = new HashMap<>();
         ProfileServiceActions profileService = createProfileServiceActions(arguments);
-        for (String profileName : arguments.getProfiles()) {
-            Profile profile = profileService.getProfile(profileName);
-            currentProfiles.put(profileName, profile);
-        }
+        Map<String, Profile> currentProfiles = profileService.getProfiles(arguments.getProfiles());
 
         ProfileDB profileDb = createProfileDb(arguments);
         Map<String, Profile> storedProfiles = profileDb.readProfiles();

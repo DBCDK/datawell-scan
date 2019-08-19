@@ -18,8 +18,10 @@
  */
 package dk.dbc.scan.common;
 
+import java.util.Map;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -40,4 +42,17 @@ public class ProfileServiceActionsIT {
         assertThat(profile.contains("870970-danbib"), is(true));
     }
 
+    @Test(timeout = 2_000L)
+    public void testGetProfiles() throws Exception {
+        System.out.println("testGetProfiles");
+
+        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/profile-service/");
+
+        Map<String, Profile> profiles = psa.getProfiles(asList("102030-danbib"));
+        assertThat(profiles.size(), is(1));
+        assertThat(profiles.get("102030-danbib"), notNullValue());
+        Profile profile = profiles.get("102030-danbib");
+        assertThat(profile.contains("800000-danbib"), is(true));
+        assertThat(profile.contains("870970-danbib"), is(true));
+    }
 }

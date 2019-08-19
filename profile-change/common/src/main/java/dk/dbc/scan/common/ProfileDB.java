@@ -27,12 +27,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
-import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,20 +37,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class ProfileDB {
+public class ProfileDB extends GenericPostgreSQL {
 
     private static final Logger log = LoggerFactory.getLogger(ProfileDB.class);
 
-    private static final Pattern POSTGRES_URL_REGEX = Pattern.compile("(?:postgres(?:ql)?://)?(?:([^:@]+)(?::([^@]*))@)?([^:/]+)(?::([1-9][0-9]*))?/(.+)");
-
-    private final DataSource ds;
-
     public ProfileDB(String url) {
-        this.ds = makeDataSource(url);
+        super(url);
     }
 
     public void migrate() {
-        migrate(ds);
+        migrate(this);
     }
 
     public static void migrate(DataSource ds) {
@@ -72,16 +65,6 @@ public class ProfileDB {
     }
 
     /**
-     * Get a new connection to the database
-     *
-     * @return connection (needs to be closed)
-     * @throws SQLException if a connection cannot be made
-     */
-    public Connection getConnection() throws SQLException {
-        return ds.getConnection();
-    }
-
-    /**
      * Get all the profiles from the database
      * <p>
      * Create a connection and read the profiles from it.
@@ -91,7 +74,7 @@ public class ProfileDB {
      */
     public Map<String, Profile> readProfiles() throws SQLException {
         Map<String, Profile> profiles = new HashMap<>();
-        try (Connection connection = ds.getConnection() ;
+        try (Connection connection = getConnection() ;
              Statement stmt = connection.createStatement() ;
              ResultSet resultSet = stmt.executeQuery("SELECT agencyId, classifier, collectionIdentifier FROM profiles")) {
             while (resultSet.next()) {
@@ -115,7 +98,7 @@ public class ProfileDB {
      * @throws SQLException If the database acts up
      */
     public void updateProfiles(Map<String, Profile> before, Map<String, Profile> after) throws SQLException {
-        try (Connection connection = ds.getConnection() ;
+        try (Connection connection = getConnection() ;
              PreparedStatement add = connection.prepareStatement("INSERT INTO profiles(agencyId, classifier, collectionIdentifier) VALUES(?, ?, ?)") ;
              PreparedStatement del = connection.prepareStatement("DELETE FROM profiles WHERE agencyId = ? AND classifier = ? AND collectionIdentifier = ?")) {
             connection.setAutoCommit(false);
@@ -152,36 +135,6 @@ public class ProfileDB {
                 connection.rollback();
                 throw e;
             }
-        }
-    }
-
-    /**
-     * Construct a datasource
-     *
-     * @param url postgresql url
-     * @return datasource
-     */
-    static DataSource makeDataSource(String url) {
-        PGSimpleDataSource ds = new PGSimpleDataSource();
-
-        Matcher matcher = POSTGRES_URL_REGEX.matcher(url);
-        if (matcher.matches()) {
-            String user = matcher.group(1);
-            String pass = matcher.group(2);
-            String host = matcher.group(3);
-            String port = matcher.group(4);
-            String base = matcher.group(5);
-            if (user != null)
-                ds.setUser(user);
-            if (pass != null)
-                ds.setPassword(pass);
-            ds.setServerName(host);
-            if (port != null)
-                ds.setPortNumber(Integer.parseUnsignedInt(port));
-            ds.setDatabaseName(base);
-            return ds;
-        } else {
-            throw new IllegalArgumentException("This is not a valid database url: " + url);
         }
     }
 }

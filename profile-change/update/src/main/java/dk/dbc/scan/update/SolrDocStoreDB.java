@@ -18,34 +18,28 @@
  */
 package dk.dbc.scan.update;
 
+import dk.dbc.scan.common.GenericPostgreSQL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.sql.DataSource;
-import org.postgresql.ds.PGSimpleDataSource;
 
 /**
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class SolrDocStoreDB {
+public class SolrDocStoreDB extends GenericPostgreSQL {
 
-    private static final Pattern POSTGRES_URL_REGEX = Pattern.compile("(?:postgres(?:ql)?://)?(?:([^:@]+)(?::([^@]*))@)?([^:/]+)(?::([1-9][0-9]*))?/(.+)");
-
-    private final DataSource ds;
 
     public SolrDocStoreDB(String url) {
-        this.ds = makeDataSource(url);
+        super(url);
     }
 
     public List<String> getQueues() throws SQLException {
         ArrayList<String> list = new ArrayList<>();
-        try (Connection connection = ds.getConnection() ;
+        try (Connection connection = getConnection() ;
              Statement stmt = connection.createStatement() ;
              ResultSet resultSet = stmt.executeQuery("SELECT queue FROM queuerule")) {
             while (resultSet.next()) {
@@ -54,39 +48,4 @@ public class SolrDocStoreDB {
         }
         return list;
     }
-
-    public Connection getConnection() throws SQLException {
-        return ds.getConnection();
-    }
-
-    /**
-     * Construct a datasource
-     *
-     * @param url postgresql url
-     * @return datasource
-     */
-    static DataSource makeDataSource(String url) {
-        PGSimpleDataSource ds = new PGSimpleDataSource();
-
-        Matcher matcher = POSTGRES_URL_REGEX.matcher(url);
-        if (matcher.matches()) {
-            String user = matcher.group(1);
-            String pass = matcher.group(2);
-            String host = matcher.group(3);
-            String port = matcher.group(4);
-            String base = matcher.group(5);
-            if (user != null)
-                ds.setUser(user);
-            if (pass != null)
-                ds.setPassword(pass);
-            ds.setServerName(host);
-            if (port != null)
-                ds.setPortNumber(Integer.parseUnsignedInt(port));
-            ds.setDatabaseName(base);
-            return ds;
-        } else {
-            throw new IllegalArgumentException("This is not a valid database url: " + url);
-        }
-    }
-
 }

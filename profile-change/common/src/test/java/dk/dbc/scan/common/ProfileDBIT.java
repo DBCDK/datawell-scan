@@ -52,7 +52,7 @@ public class ProfileDBIT {
         } else {
             pgUrl = "duser:dpass@localhost/data";
         }
-        this.ds = ProfileDB.makeDataSource(pgUrl);
+        this.ds = new GenericPostgreSQL(pgUrl);
     }
 
     @After
