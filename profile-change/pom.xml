@@ -79,7 +79,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -174,12 +174,6 @@
                 <scope>compile</scope>
             </dependency>
 
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-all</artifactId>
-                <version>${hamcrest.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     
