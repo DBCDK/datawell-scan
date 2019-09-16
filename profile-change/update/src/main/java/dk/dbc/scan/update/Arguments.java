@@ -57,6 +57,7 @@ public class Arguments {
     private final Option batchSize;
     private final Option solr;
     private final Option profileService;
+    private final Option importProfiles;
     private final Option queue;
     private final Option quiet;
     private final Option onlySyncDb;
@@ -109,7 +110,7 @@ public class Arguments {
                         .longOpt("queue")
                         .hasArg()
                         .argName("NAME")
-                        .desc("names (comma seperated list) of solr-doc-store queue (default: cirepo-indexer-worker-slow)")
+                        .desc("names (comma seperated list) of solr-doc-store queue (default: (solr-doc-store-queues*)-slow)")
                         .build())
                 .addOption(this.profileService = Option.builder("p")
                         .longOpt("profile-service")
@@ -117,6 +118,10 @@ public class Arguments {
                         .required()
                         .argName("URL")
                         .desc("The root of the profile service")
+                        .build())
+                .addOption(this.importProfiles = Option.builder("i")
+                        .longOpt("import-profiles")
+                        .desc("log only errors")
                         .build())
                 .addOption(this.onlySyncDb = Option.builder("D")
                         .longOpt("only-sync-database")
@@ -129,7 +134,7 @@ public class Arguments {
             setupLogLevel("dk.dbc");
 
             profiles = commandLine.getArgList();
-            if (profiles.isEmpty())
+            if (profiles.isEmpty() && !commandLine.hasOption(importProfiles.getLongOpt()))
                 missing.accept("PROFILE");
 
             String missingRequired = missing.build()
@@ -173,8 +178,12 @@ public class Arguments {
         return commandLine.hasOption(onlySyncDb.getLongOpt());
     }
 
+    public boolean hasImportProfile() {
+        return commandLine.hasOption(importProfiles.getLongOpt());
+    }
+
     public List<String> getQueues() {
-        List<String> queues = Arrays.stream(getOpt(queue, null).split(","))
+        List<String> queues = Arrays.stream(getOpt(queue, "*-slow").split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(toList());

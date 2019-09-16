@@ -49,12 +49,14 @@ public class Update {
         ProfileServiceActions profileService = createProfileServiceActions(arguments);
         ProfileDB profileDb = createProfileDb(arguments);
 
-        for (String profileName : arguments.getProfiles()) {
+        HashSet<String> profiles = new HashSet<>(arguments.getProfiles());
+        Map<String, Profile> storedProfiles = profileDb.readProfiles();
+        if (arguments.hasImportProfile())
+            profiles.addAll(storedProfiles.keySet());
+        for (String profileName : profiles) {
             Profile profile = profileService.getProfile(profileName);
             currentProfiles.put(profileName, profile);
         }
-
-        Map<String, Profile> storedProfiles = profileDb.readProfiles();
 
         if (!arguments.isOnlySyncDatabase()) {
             SolrDocStoreDB solrDocStoreDb = createSolrDocStoreDb(arguments);
