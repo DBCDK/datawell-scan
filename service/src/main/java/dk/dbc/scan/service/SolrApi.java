@@ -81,7 +81,7 @@ public class SolrApi {
                 .setRequestHandler("/analysis/field")
                 .set("analysis.fieldname", fieldName)
                 .set("analysis.fieldvalue", fieldValue)
-                .set("agent", "datawell-scan-service");
+                .set("appId", config.getAppId());
         QueryResponse resp = config.getSolrClient().query(req);
 
         return Checker.of(resp)
@@ -129,7 +129,7 @@ public class SolrApi {
                 .set("terms.limit", count)
                 .set("terms.raw", false)
                 .set("trackingId", trackingId)
-                .set("agent", "datawell-scan-service");
+                .set("appId", config.getAppId());
         QueryResponse resp = config.getSolrClient().query(req);
         if (resp.getStatus() != 0) {
             log.warn("Error in request (terms): {} = {}", req, resp);
@@ -156,7 +156,7 @@ public class SolrApi {
         SolrQuery req = new SolrQuery()
                 .setQuery(fieldName + ":" + ClientUtils.escapeQueryChars(fieldValue))
                 .setFilterQueries(filterQuery)
-                .setParam("agent", "datawell-scan-service")
+                .setParam("appId", config.getAppId())
                 .setRows(0);
         QueryResponse resp = config.getSolrClient().query(req);
         if (resp.getStatus() != 0) {

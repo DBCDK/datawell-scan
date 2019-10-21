@@ -18,17 +18,9 @@
  */
 package dk.dbc.scan.service;
 
-import javax.ejb.embeddable.EJBContainer;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 /**
  *
