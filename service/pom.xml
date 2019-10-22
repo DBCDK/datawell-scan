@@ -254,6 +254,7 @@
                     <environmentVariables>
                         <SOLR_URL>zk://localhost:${solr.zk.port}/corepo</SOLR_URL>
                         <PROFILE_SERVICE_URL>http://localhost:${wiremock.port}/profile-service/</PROFILE_SERVICE_URL>
+                        <SOLR_APPID>scan-service</SOLR_APPID>
                     </environmentVariables>
                 </configuration>
                 <executions>

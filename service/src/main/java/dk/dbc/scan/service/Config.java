@@ -48,6 +48,7 @@ public class Config {
 
     private final Map<String, String> env;
 
+    private String appId;
     private SolrClient solrClient;
     private UriBuilder profileService;
     private int maxCount;
@@ -66,6 +67,7 @@ public class Config {
 
     @PostConstruct
     public void init() {
+        appId = get("SOLR_APPID");
         String userAgent = get("USER_AGENT", "ScanService/0.1");
         log.debug("Using: {} as HttpUserAgent", userAgent);
         this.httpClient = ClientBuilder.newBuilder()
@@ -85,6 +87,10 @@ public class Config {
         this.parallelHitcountRequests = Integer.parseUnsignedInt(get("PARALLEL_HITCOUNT_REQUESTS", "20"));
         if (parallelHitcountRequests <= 0)
             throw new IllegalArgumentException("variable PARALLEL_HITCOUNT_REQUESTS should be atleast 1");
+    }
+
+    public String getAppId() {
+        return appId;
     }
 
     public Client getHttpClient() {
