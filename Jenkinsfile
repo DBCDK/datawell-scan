@@ -155,6 +155,7 @@ pipeline {
             steps {
                 script {
                     dir("deploy") {
+                        println("updating dit datawell-scan-service.yml...")
                         sh "set-new-version services/search/datawell-scan-service.yml ${env.GITLAB_PRIVATE_TOKEN} metascrum/dit-gitops-secrets ${DOCKER_PUSH_TAG} -b master"
                     }
                 }
