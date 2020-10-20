@@ -54,6 +54,7 @@ public class Config {
     private int maxCount;
     private int parallelHitcountRequests;
     private Client httpClient;
+    private String vipCoreEndpoint;
 
     public Config() {
         this.env = System.getenv();
@@ -83,10 +84,14 @@ public class Config {
                 .queryParam("trackingId", "{trackingId}");
         this.maxCount = Integer.parseUnsignedInt(get("MAX_COUNT", "100"));
         if (maxCount <= 0)
-            throw new IllegalArgumentException("variable MAX_COUNT should be atleast 1");
+            throw new IllegalArgumentException("variable MAX_COUNT should be at least 1");
         this.parallelHitcountRequests = Integer.parseUnsignedInt(get("PARALLEL_HITCOUNT_REQUESTS", "20"));
         if (parallelHitcountRequests <= 0)
-            throw new IllegalArgumentException("variable PARALLEL_HITCOUNT_REQUESTS should be atleast 1");
+            throw new IllegalArgumentException("variable PARALLEL_HITCOUNT_REQUESTS should be at least 1");
+        vipCoreEndpoint = get("VIPCORE_ENDPOINT");
+        if (vipCoreEndpoint == null || vipCoreEndpoint.isEmpty()) {
+            throw new IllegalArgumentException("variable VIPCORE_ENDPOINT must be set!");
+        }
     }
 
     public String getAppId() {
@@ -111,6 +116,10 @@ public class Config {
 
     public int getParallelHitcountRequests() {
         return parallelHitcountRequests;
+    }
+
+    public String getVipCoreEndpoint() {
+        return vipCoreEndpoint;
     }
 
     private String get(String key) {
