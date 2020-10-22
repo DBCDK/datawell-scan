@@ -19,17 +19,24 @@
 package dk.dbc.scan.service;
 
 import dk.dbc.scan.service.ScanResponse.Term;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import static dk.dbc.scan.service.SolrDocumentLoader.emptySolr;
 import static java.util.stream.Collectors.toSet;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  *
@@ -44,35 +51,35 @@ public class ScanIT {
         emptySolr()
                 .add(4, d -> d
                      .withScan("lti", "hello there", "123456_that")
-                     .withCollectionIdentifier("777777-foo")
-                     .withCollectionIdentifier("654321-bar"))
+                     .withCollectionIdentifier("777777-katalog")
+                     .withCollectionIdentifier("654321-danbib"))
                 .add(1, d -> d
                      .withScan("lti", "hello abe", "123456_that")
-                     .withCollectionIdentifier("777777-foo")
-                     .withCollectionIdentifier("654321-bar"))
+                     .withCollectionIdentifier("777777-katalog")
+                     .withCollectionIdentifier("654321-danbib"))
                 .add(1, d -> d
                      .withScan("lti", "hello butler") // Not part of 123456 profile
-                     .withCollectionIdentifier("777777-foo"))
+                     .withCollectionIdentifier("777777-katalog"))
                 .add(1, d -> d
                      .withScan("lti", "hello cat", "123456_that")
-                     .withCollectionIdentifier("777777-foo")
-                     .withCollectionIdentifier("654321-bar"))
+                     .withCollectionIdentifier("777777-katalog")
+                     .withCollectionIdentifier("654321-danbib"))
                 .add(3, d -> d
                      .withScan("lti", "hello dolly", "123456_that")
-                     .withCollectionIdentifier("777777-foo")
-                     .withCollectionIdentifier("654321-bar"))
+                     .withCollectionIdentifier("777777-katalog")
+                     .withCollectionIdentifier("654321-danbib"))
                 .add(1, d -> d
                      .withScan("lti", "hello ecma", "123456_that")
-                     .withCollectionIdentifier("777777-foo")
-                     .withCollectionIdentifier("654321-bar"))
+                     .withCollectionIdentifier("777777-katalog")
+                     .withCollectionIdentifier("654321-danbib"))
                 .add(4, d -> d
                      .withScan("lti", "hello world", "123456_that")
-                     .withCollectionIdentifier("777777-foo")
-                     .withCollectionIdentifier("654321-bar"))
+                     .withCollectionIdentifier("777777-katalog")
+                     .withCollectionIdentifier("654321-danbib"))
                 .add(2, d -> d
                      .withScan("lti", "zoo", "123456_that")
-                     .withCollectionIdentifier("777777-foo")
-                     .withCollectionIdentifier("654321-bar"))
+                     .withCollectionIdentifier("777777-katalog")
+                     .withCollectionIdentifier("654321-danbib"))
                 .commit();
 
         ExecutorService mes = Executors.newFixedThreadPool(25);

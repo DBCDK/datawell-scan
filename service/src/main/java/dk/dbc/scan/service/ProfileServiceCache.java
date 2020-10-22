@@ -18,6 +18,7 @@
  */
 package dk.dbc.scan.service;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,9 +58,6 @@ public class ProfileServiceCache {
     @Inject
     Config config;
 
-    @EJB
-    VipCoreHttpClient vipCoreHttpClient;
-
     public ProfileServiceCache() {
     }
 
@@ -87,18 +85,23 @@ public class ProfileServiceCache {
                                      ServerErrorException.class,
                                      IOException.class})
     public String filterQueryFor(@CacheKey String agencyId, @CacheKey String profile, String trackingId) throws IOException {
-        try {
-            String vipCoreResponse = vipCoreHttpClient.getFromVipCore(config.getVipCoreEndpoint(),
-                    VipCoreHttpClient.PROFILE_SERVICE_PATH + "/search/" + agencyId + "/" + profile);
-            ProfileServiceResponse profileServiceResponse = O.readValue(vipCoreResponse, ProfileServiceResponse.class);
-            if (profileServiceResponse.getError() != null) {
-                log.warn("Got an error: {} for agency {} and profile {}", profileServiceResponse.getError().value(), agencyId, profile);
-                throw new ServerErrorException(profileServiceResponse.getError().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+        log.debug("filterQueryFor called with agency {} and profile {}", agencyId, profile);
+        URI uri = config.getVipCore().path("profileservice/search/{agencyId}/{profile}").build(agencyId, profile);
+        try (InputStream is = config.getVipCoreHttpClient(trackingId)
+                             .target(uri)
+                             .request(MediaType.APPLICATION_JSON)
+                             .get(InputStream.class))
+        {
+            ProfileServiceResponse resp = O.readValue(is, ProfileServiceResponse.class);
+            if (resp.getError() != null) {
+                log.warn("Got an error: {} for agency {} and profile {}", resp.getError().value(), agencyId, profile);
+                throw new ServerErrorException(resp.getError().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
             }
-            return profileServiceResponse.getFilterQuery();
-        } catch (OpenAgencyException e) {
+            final String res = resp.getFilterQuery();
+            return res;
+        } catch (JsonParseException e) {
             log.warn("Error occurred when fetching filter query for agency {}, profile {}: {}", agencyId, profile, e.getMessage());
-            throw new ServerErrorException(e.getOpenAgencyExceptionType().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException(e.getMessage(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }

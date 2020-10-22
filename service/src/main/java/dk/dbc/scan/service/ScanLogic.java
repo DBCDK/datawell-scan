@@ -156,7 +156,7 @@ public class ScanLogic {
                 terms = scan.iterator();
             }
             while (terms.hasNext()) {
-                log.trace("chould we check hitcount");
+                log.trace("should we check hitcount");
                 int goodTermCount = goodTermCount();
                 log.trace("goodTermCount = {}", goodTermCount);
                 if (goodTermCount >= count)

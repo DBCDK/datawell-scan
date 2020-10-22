@@ -1,7 +1,7 @@
 {
   "id" : "78be31ac-5109-3426-90a5-bbaf52f54e9d",
   "request" : {
-    "url" : "/profile-service/api/profile/123456/that?trackingId=test",
+    "url" : "/vipcore/profileservice/search/123456/that",
     "method" : "GET"
   },
   "response" : {

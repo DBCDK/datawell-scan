@@ -54,7 +54,7 @@ public class Config {
     private int maxCount;
     private int parallelHitcountRequests;
     private Client httpClient;
-    private String vipCoreEndpoint;
+    private UriBuilder vipCore;
 
     public Config() {
         this.env = System.getenv();
@@ -88,10 +88,7 @@ public class Config {
         this.parallelHitcountRequests = Integer.parseUnsignedInt(get("PARALLEL_HITCOUNT_REQUESTS", "20"));
         if (parallelHitcountRequests <= 0)
             throw new IllegalArgumentException("variable PARALLEL_HITCOUNT_REQUESTS should be at least 1");
-        vipCoreEndpoint = get("VIPCORE_ENDPOINT");
-        if (vipCoreEndpoint == null || vipCoreEndpoint.isEmpty()) {
-            throw new IllegalArgumentException("variable VIPCORE_ENDPOINT must be set!");
-        }
+        vipCore = UriBuilder.fromPath(get("VIPCORE_ENDPOINT"));
     }
 
     public String getAppId() {
@@ -118,8 +115,14 @@ public class Config {
         return parallelHitcountRequests;
     }
 
-    public String getVipCoreEndpoint() {
-        return vipCoreEndpoint;
+    public UriBuilder getVipCore() {
+        return vipCore.clone();
+    }
+
+    public Client getVipCoreHttpClient(String trackingId) {
+        return getHttpClient()
+                .register((ClientRequestFilter) (ClientRequestContext context) ->
+                        context.getHeaders().putSingle("X-DBCTrackingId", trackingId));
     }
 
     private String get(String key) {
