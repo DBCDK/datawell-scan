@@ -33,6 +33,8 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
+
+import dk.dbc.vipcore.marshallers.ProfileServiceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +52,13 @@ public class ProfileServiceActions {
     private final Client client;
     private final UriBuilder uriBuilder;
 
-    public ProfileServiceActions(String profileService) {
+    public ProfileServiceActions(String vipCore) {
         client = ClientBuilder.newBuilder()
                 .register((ClientRequestFilter) (ClientRequestContext context) ->
                         context.getHeaders().putSingle("User-Agent", "ProfileServiceMonitor/1.0"))
                 .build();
-        this.uriBuilder = UriBuilder.fromUri(profileService)
-                .path("api/profile/{agencyId}/{profileName}");
+        this.uriBuilder = UriBuilder.fromUri(vipCore)
+                .path("api/profileservice/{agencyId}/{profileName}");
     }
 
     public URI getUri(int agencyId, String profileName) {
@@ -74,13 +76,14 @@ public class ProfileServiceActions {
         URI uri = getUri(Integer.parseInt(parts[0]), parts[1]);
         try (InputStream is = client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .buildGet()
-                .invoke(InputStream.class)) {
-            Response resp = O.readValue(is, Response.class);
-            if (resp.success)
-                return new Profile(resp.search);
-            log.warn("Got an error: {} for: {}", resp.error, uri);
-            throw new ServerErrorException(resp.error, javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+                .get(InputStream.class))
+        {
+            ProfileServiceResponse resp = O.readValue(is, ProfileServiceResponse.class);
+            if (resp.getError() != null) {
+                log.warn("Got an error: {} for: {}", resp.getError().value(), uri);
+                throw new ServerErrorException(resp.getError().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+            }
+            return new Profile(resp.getCollectionIdentifiers());
         }
     }
 
@@ -90,12 +93,5 @@ public class ProfileServiceActions {
             collection.put(profileName, getProfile(profileName));
         }
         return collection;
-    }
-
-    public static class Response {
-
-        public boolean success;
-        public String error;
-        public List<String> search;
     }
 }

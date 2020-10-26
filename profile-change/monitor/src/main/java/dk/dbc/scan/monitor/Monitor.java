@@ -60,7 +60,7 @@ public class Monitor {
     }
 
     ProfileServiceActions createProfileServiceActions(Arguments arguments) {
-        return new ProfileServiceActions(arguments.getProfileService());
+        return new ProfileServiceActions(arguments.getVipCore());
     }
 
     private boolean report(Map<String, Profile> before,

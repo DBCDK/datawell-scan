@@ -18,12 +18,14 @@
  */
 package dk.dbc.scan.common;
 
-import java.util.Map;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  *
@@ -35,7 +37,7 @@ public class ProfileServiceActionsIT {
     public void testGetProfile() throws Exception {
         System.out.println("testGetProfile");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/profile-service/");
+        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/");
 
         Profile profile = psa.getProfile("102030-danbib");
         assertThat(profile.contains("800000-danbib"), is(true));
@@ -46,7 +48,7 @@ public class ProfileServiceActionsIT {
     public void testGetProfiles() throws Exception {
         System.out.println("testGetProfiles");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/profile-service/");
+        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/");
 
         Map<String, Profile> profiles = psa.getProfiles(asList("102030-danbib"));
         assertThat(profiles.size(), is(1));

@@ -50,7 +50,6 @@ public class Config {
 
     private String appId;
     private SolrClient solrClient;
-    private UriBuilder profileService;
     private int maxCount;
     private int parallelHitcountRequests;
     private Client httpClient;
@@ -79,9 +78,6 @@ public class Config {
 
         String solrUrl = get("SOLR_URL");
         this.solrClient = SolrApi.makeSolrClient(solrUrl);
-        this.profileService = UriBuilder.fromUri(get("PROFILE_SERVICE_URL"))
-                .path("api/profile/{agencyId}/{profile}")
-                .queryParam("trackingId", "{trackingId}");
         this.maxCount = Integer.parseUnsignedInt(get("MAX_COUNT", "100"));
         if (maxCount <= 0)
             throw new IllegalArgumentException("variable MAX_COUNT should be at least 1");
@@ -101,10 +97,6 @@ public class Config {
 
     public SolrClient getSolrClient() {
         return solrClient;
-    }
-
-    public UriBuilder getProfileService() {
-        return profileService.clone();
     }
 
     public int getMaxCount() {

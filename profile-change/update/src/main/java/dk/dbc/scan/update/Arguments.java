@@ -56,7 +56,7 @@ public class Arguments {
     private final Option solrDocStore;
     private final Option batchSize;
     private final Option solr;
-    private final Option profileService;
+    private final Option vipCoreEndpoint;
     private final Option importProfiles;
     private final Option queue;
     private final Option quiet;
@@ -112,12 +112,12 @@ public class Arguments {
                         .argName("NAME")
                         .desc("names (comma seperated list) of solr-doc-store queue (default: (solr-doc-store-queues*)-slow)")
                         .build())
-                .addOption(this.profileService = Option.builder("p")
-                        .longOpt("profile-service")
+                .addOption(this.vipCoreEndpoint = Option.builder("V")
+                        .longOpt("vipcore")
                         .hasArg()
                         .required()
                         .argName("URL")
-                        .desc("The root of the profile service")
+                        .desc("Url for the vipCore service")
                         .build())
                 .addOption(this.importProfiles = Option.builder("i")
                         .longOpt("import-profiles")
@@ -196,9 +196,7 @@ public class Arguments {
         return unmodifiableList(profiles);
     }
 
-    public String getProfileService() {
-        return getOpt(profileService, null);
-    }
+    public String getVipCoreEndpoint() { return getOpt(vipCoreEndpoint, null); }
 
     public int getBatchSize() {
         return Integer.parseUnsignedInt(getOpt(batchSize, "10000"));
