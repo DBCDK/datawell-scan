@@ -18,10 +18,10 @@
  */
 package dk.dbc.scan.common;
 
-import java.util.Arrays;
+import org.postgresql.ds.PGSimpleDataSource;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.postgresql.ds.PGSimpleDataSource;
 
 /**
  *
