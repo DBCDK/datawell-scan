@@ -18,6 +18,7 @@
  */
 package dk.dbc.scan.common;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -42,9 +43,9 @@ public class GenericPostgreSQL extends PGSimpleDataSource {
                 setUser(user);
             if (pass != null)
                 setPassword(pass);
-            setServerName(host);
+            setServerNames(new String[] {host});
             if (port != null)
-                setPortNumber(Integer.parseUnsignedInt(port));
+                setPortNumbers(new int[] {Integer.parseUnsignedInt(port)});
             setDatabaseName(base);
         } else {
             throw new IllegalArgumentException("This is not a valid database url: " + url);

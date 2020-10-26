@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  *
@@ -31,7 +32,7 @@ import static org.junit.Assert.*;
 public class ReThrowExceptionTest {
 
     @Test(timeout = 2_000L)
-    public void testSimpleRethrow() throws Exception {
+    public void testSimpleRethrow() {
         System.out.println("testSimpleRethrow");
         try {
             try {
@@ -45,7 +46,7 @@ public class ReThrowExceptionTest {
                 e.throwAs(IllegalStateException.class);
                 e.throwAs(Exception.class);
             } catch (Exception e) {
-                fail("Sould have thrown a ReThrowException");
+                fail("Should have thrown a ReThrowException");
             }
         } catch (IllegalStateException e) {
         } catch (Exception e) {
