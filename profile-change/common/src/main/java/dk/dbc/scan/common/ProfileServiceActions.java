@@ -58,7 +58,7 @@ public class ProfileServiceActions {
                         context.getHeaders().putSingle("User-Agent", "ProfileServiceMonitor/1.0"))
                 .build();
         this.uriBuilder = UriBuilder.fromUri(vipCore)
-                .path("api/profileservice/{agencyId}/{profileName}");
+                .path("profileservice/search/{agencyId}/{profileName}");
     }
 
     public URI getUri(int agencyId, String profileName) {

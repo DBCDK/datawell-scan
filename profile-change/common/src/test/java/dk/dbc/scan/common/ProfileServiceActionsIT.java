@@ -37,7 +37,7 @@ public class ProfileServiceActionsIT {
     public void testGetProfile() throws Exception {
         System.out.println("testGetProfile");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/");
+        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/api");
 
         Profile profile = psa.getProfile("102030-danbib");
         assertThat(profile.contains("800000-danbib"), is(true));
@@ -48,7 +48,7 @@ public class ProfileServiceActionsIT {
     public void testGetProfiles() throws Exception {
         System.out.println("testGetProfiles");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/");
+        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/api");
 
         Map<String, Profile> profiles = psa.getProfiles(asList("102030-danbib"));
         assertThat(profiles.size(), is(1));

@@ -264,7 +264,7 @@
                     <environmentVariables>
                         <SOLR_URL>zk://localhost:${solr.zk.port}/corepo</SOLR_URL>
                         <PROFILE_SERVICE_URL>http://localhost:${wiremock.port}/profile-service/</PROFILE_SERVICE_URL>
-                        <VIPCORE_ENDPOINT>http://localhost:${wiremock.port}/vipcore/</VIPCORE_ENDPOINT>
+                        <VIPCORE_ENDPOINT>http://localhost:${wiremock.port}/vipcore/api/</VIPCORE_ENDPOINT>
                         <SOLR_APPID>scan-service</SOLR_APPID>
                     </environmentVariables>
                 </configuration>

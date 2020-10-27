@@ -38,7 +38,7 @@ public class ArgumentsTest {
         System.out.println("testHappyPath");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Arguments arguments = new Arguments("-d myDb -V http://localhost/goo 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-d myDb -V http://localhost/foo 700000-bar".split(" +")) {
             @Override
                     OutputStream getOutputStream(boolean hasError) {
                         return bos;
@@ -47,7 +47,7 @@ public class ArgumentsTest {
         String err = new String(bos.toByteArray(), UTF_8);
         assertThat(err, is(""));
         assertThat(arguments.getDb(), is("myDb"));
-        assertThat(arguments.getVipCore(), is("http://localhost/goo"));
+        assertThat(arguments.getVipCore(), is("http://localhost/foo"));
         assertThat(arguments.getProfiles(), containsInAnyOrder("700000-bar"));
     }
 
@@ -57,7 +57,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-V http://localhost/goo 700000-bar".split(" +")) {
+            new Arguments("-V http://localhost/foo 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -99,7 +99,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -V http://localhost/goo ".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo ".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -120,7 +120,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -V http://localhost/goo xxxxxx-yyy".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo xxxxxx-yyy".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -141,7 +141,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -V http://localhost/goo 700000-".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo 700000-".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -162,7 +162,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -V http://localhost/goo -v -q 700000-bar".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo -v -q 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;

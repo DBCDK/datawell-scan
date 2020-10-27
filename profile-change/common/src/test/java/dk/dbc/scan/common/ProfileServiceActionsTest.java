@@ -35,11 +35,11 @@ public class ProfileServiceActionsTest {
     public void testUri() throws Exception {
         System.out.println("testUri");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:12345");
+        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:12345/api");
 
         URI uri = psa.getUri(123456, "abc");
         System.out.println("uri = " + uri);
-        assertThat(uri.toString(), is("http://localhost:12345/api/profileservice/123456/abc"));
+        assertThat(uri.toString(), is("http://localhost:12345/api/profileservice/search/123456/abc"));
     }
 
 }
