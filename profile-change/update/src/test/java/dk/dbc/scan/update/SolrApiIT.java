@@ -18,11 +18,13 @@
  */
 package dk.dbc.scan.update;
 
-import java.util.ArrayList;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+
 
 /**
  *

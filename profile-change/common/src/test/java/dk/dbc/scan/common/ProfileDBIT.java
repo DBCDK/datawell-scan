@@ -18,19 +18,21 @@
  */
 package dk.dbc.scan.common;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import javax.sql.DataSource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 
 /**
  *

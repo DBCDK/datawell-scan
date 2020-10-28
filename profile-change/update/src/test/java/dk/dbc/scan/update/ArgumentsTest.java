@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 
 /**
  *
@@ -40,7 +42,7 @@ public class ArgumentsTest {
         System.out.println("testHappyPath");
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-        Arguments arguments = new Arguments("-d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +")) {
             @Override
             OutputStream getOutputStream(boolean hasError) {
                 return bos;
@@ -51,7 +53,7 @@ public class ArgumentsTest {
         assertThat(arguments.getProfileDb(), is("myDb"));
         assertThat(arguments.getSolrDocStoreDb(), is("otherDb"));
         assertThat(arguments.getSolrUrl(), is("http://localhost/solr"));
-        assertThat(arguments.getProfileService(), is("http://localhost/profile-service"));
+        assertThat(arguments.getVipCoreEndpoint(), is("http://localhost/vipcore"));
         assertThat(arguments.getBatchSize(), is(10000));
         assertThat(arguments.getProfiles(), containsInAnyOrder("700000-bar"));
     }
@@ -62,7 +64,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+            new Arguments("-S otherDb -s http://localhost/solr 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -83,7 +85,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+            new Arguments("-d myDb -s http://localhost/solr 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -104,7 +106,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -S otherDb -p http://localhost/profile-service 700000-bar".split(" +")) {
+            new Arguments("-d myDb -S otherDb 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -120,8 +122,8 @@ public class ArgumentsTest {
     }
 
     @Test(timeout = 2_000L)
-    public void testMissingProfileUrl() throws Exception {
-        System.out.println("testMissingProfileUrl");
+    public void testMissingVipCoreUrl() throws Exception {
+        System.out.println("testMissingVipCoreUrl");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
@@ -134,7 +136,7 @@ public class ArgumentsTest {
         } catch (ExitException e) {
             assertThat(e.getExitCode(), not(is(0)));
             String err = new String(bos.toByteArray(), UTF_8);
-            assertThat(err, containsString("Missing required options: p"));
+            assertThat(err, containsString("Missing required options: V"));
             return;
         }
         fail("Did not throw ExitException");
@@ -146,7 +148,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service".split(" +")) {
+            new Arguments("-d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -167,7 +169,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service xxxxxx-yyy".split(" +")) {
+            new Arguments("-d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore/ xxxxxx-yyy".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -188,7 +190,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service xxxxxx-".split(" +")) {
+            new Arguments("-d myDb -S otherDb -s http://localhost/solr -V http://localhost/vip-core xxxxxx-".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -209,7 +211,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service -v -q 700000-bar".split(" +")) {
+            new Arguments("-d myDb -S otherDb -s http://localhost/solr -v -q 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -229,7 +231,7 @@ public class ArgumentsTest {
         System.out.println("testBatchValue");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Arguments arguments = new Arguments("-b 12345 -d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-b 12345 -d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +")) {
             @Override
             OutputStream getOutputStream(boolean hasError) {
                 return bos;
@@ -245,7 +247,7 @@ public class ArgumentsTest {
         System.out.println("testBatchDefault");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Arguments arguments = new Arguments("-d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +")) {
             @Override
             OutputStream getOutputStream(boolean hasError) {
                 return bos;
@@ -261,7 +263,7 @@ public class ArgumentsTest {
         System.out.println("testHasQueues");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Arguments arguments = new Arguments("-d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +")) {
             @Override
             OutputStream getOutputStream(boolean hasError) {
                 return bos;
@@ -277,7 +279,7 @@ public class ArgumentsTest {
         System.out.println("testQueuesList");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Arguments arguments = new Arguments("-Q abc,,12 -d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-Q abc,,12 -d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +")) {
             @Override
             OutputStream getOutputStream(boolean hasError) {
                 return bos;
@@ -294,7 +296,7 @@ public class ArgumentsTest {
         System.out.println("testBadQueueList");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Arguments arguments = new Arguments("-Q ,, -d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-Q ,, -d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +")) {
             @Override
             OutputStream getOutputStream(boolean hasError) {
                 return bos;
@@ -315,7 +317,7 @@ public class ArgumentsTest {
     public void testQuiet() throws Exception {
         System.out.println("testQuiet");
 
-        new Arguments("-q -d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +"));
+        new Arguments("-q -d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +"));
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         assertThat(context.getLogger("dk.dbc").getLevel(), is(Level.WARN));
     }
@@ -324,7 +326,7 @@ public class ArgumentsTest {
     public void testVerbose() throws Exception {
         System.out.println("testVerbose");
 
-        new Arguments("-v -d myDb -S otherDb -s http://localhost/solr -p http://localhost/profile-service 700000-bar".split(" +"));
+        new Arguments("-v -d myDb -S otherDb -s http://localhost/solr -V http://localhost/vipcore 700000-bar".split(" +"));
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         assertThat(context.getLogger("dk.dbc").getLevel(), is(Level.DEBUG));
     }

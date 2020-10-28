@@ -50,10 +50,10 @@ public class Config {
 
     private String appId;
     private SolrClient solrClient;
-    private UriBuilder profileService;
     private int maxCount;
     private int parallelHitcountRequests;
     private Client httpClient;
+    private UriBuilder vipCore;
 
     public Config() {
         this.env = System.getenv();
@@ -78,15 +78,13 @@ public class Config {
 
         String solrUrl = get("SOLR_URL");
         this.solrClient = SolrApi.makeSolrClient(solrUrl);
-        this.profileService = UriBuilder.fromUri(get("PROFILE_SERVICE_URL"))
-                .path("api/profile/{agencyId}/{profile}")
-                .queryParam("trackingId", "{trackingId}");
         this.maxCount = Integer.parseUnsignedInt(get("MAX_COUNT", "100"));
         if (maxCount <= 0)
-            throw new IllegalArgumentException("variable MAX_COUNT should be atleast 1");
+            throw new IllegalArgumentException("variable MAX_COUNT should be at least 1");
         this.parallelHitcountRequests = Integer.parseUnsignedInt(get("PARALLEL_HITCOUNT_REQUESTS", "20"));
         if (parallelHitcountRequests <= 0)
-            throw new IllegalArgumentException("variable PARALLEL_HITCOUNT_REQUESTS should be atleast 1");
+            throw new IllegalArgumentException("variable PARALLEL_HITCOUNT_REQUESTS should be at least 1");
+        vipCore = UriBuilder.fromPath(get("VIPCORE_ENDPOINT"));
     }
 
     public String getAppId() {
@@ -101,16 +99,22 @@ public class Config {
         return solrClient;
     }
 
-    public UriBuilder getProfileService() {
-        return profileService.clone();
-    }
-
     public int getMaxCount() {
         return maxCount;
     }
 
     public int getParallelHitcountRequests() {
         return parallelHitcountRequests;
+    }
+
+    public UriBuilder getVipCore() {
+        return vipCore.clone();
+    }
+
+    public Client getVipCoreHttpClient(String trackingId) {
+        return getHttpClient()
+                .register((ClientRequestFilter) (ClientRequestContext context) ->
+                        context.getHeaders().putSingle("X-DBCTrackingId", trackingId));
     }
 
     private String get(String key) {

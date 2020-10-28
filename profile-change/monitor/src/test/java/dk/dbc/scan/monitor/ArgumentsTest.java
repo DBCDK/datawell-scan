@@ -25,6 +25,7 @@ import org.junit.Test;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  *
@@ -37,7 +38,7 @@ public class ArgumentsTest {
         System.out.println("testHappyPath");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Arguments arguments = new Arguments("-d myDb -p http://localhost/foo 700000-bar".split(" +")) {
+        Arguments arguments = new Arguments("-d myDb -V http://localhost/foo 700000-bar".split(" +")) {
             @Override
                     OutputStream getOutputStream(boolean hasError) {
                         return bos;
@@ -46,7 +47,7 @@ public class ArgumentsTest {
         String err = new String(bos.toByteArray(), UTF_8);
         assertThat(err, is(""));
         assertThat(arguments.getDb(), is("myDb"));
-        assertThat(arguments.getProfileService(), is("http://localhost/foo"));
+        assertThat(arguments.getVipCore(), is("http://localhost/foo"));
         assertThat(arguments.getProfiles(), containsInAnyOrder("700000-bar"));
     }
 
@@ -56,7 +57,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-p http://localhost/foo 700000-bar".split(" +")) {
+            new Arguments("-V http://localhost/foo 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -72,8 +73,8 @@ public class ArgumentsTest {
     }
 
     @Test(timeout = 2_000L)
-    public void testMissingProfileService() throws Exception {
-        System.out.println("testMissingProfileService");
+    public void testMissingVipCore() throws Exception {
+        System.out.println("testMissingVipCore");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
@@ -86,7 +87,7 @@ public class ArgumentsTest {
         } catch (ExitException e) {
             assertThat(e.getExitCode(), not(is(0)));
             String err = new String(bos.toByteArray(), UTF_8);
-            assertThat(err, containsString("Missing required options: p"));
+            assertThat(err, containsString("Missing required options: V"));
             return;
         }
         fail("Did not throw ExitException");
@@ -98,7 +99,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -p http://localhost/foo".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo ".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -119,7 +120,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -p http://localhost/foo xxxxxx-yyy".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo xxxxxx-yyy".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -140,7 +141,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -p http://localhost/foo 700000-".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo 700000-".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;
@@ -161,7 +162,7 @@ public class ArgumentsTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new Arguments("-d myDb -p http://localhost/foo -v -q 700000-bar".split(" +")) {
+            new Arguments("-d myDb -V http://localhost/foo -v -q 700000-bar".split(" +")) {
                 @Override
                 OutputStream getOutputStream(boolean hasError) {
                     return bos;

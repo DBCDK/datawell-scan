@@ -1,6 +1,8 @@
 {
-    "filterQuery": "rec.collectionIdentifier:\"777777-foo\" OR rec.collectionIdentifier:\"123456-katalog\" OR rec.holdingsAgencyId:\"self\"",
+    "collectionIdentifiers": [
+        "777777-katalog",
+        "123456-katalog"
+    ],
     "includeOwnHoldings": true,
-    "search": [ "777777-foo", "123456-katalog" ],
-    "success": true
+    "filterQuery": "rec.collectionIdentifier:\"777777-katalog\" OR rec.collectionIdentifier:\"123456-katalog\" OR rec.holdingsAgencyId:\"self\""
 }

@@ -105,9 +105,9 @@ public class DB {
                 ds.setUser(user);
             if (pass != null)
                 ds.setPassword(pass);
-            ds.setServerName(host);
+            ds.setServerNames(new String[] {host});
             if (port != null)
-                ds.setPortNumber(Integer.parseUnsignedInt(port));
+                ds.setPortNumbers(new int[] {Integer.parseUnsignedInt(port)});
             ds.setDatabaseName(base);
             return ds;
         } else {

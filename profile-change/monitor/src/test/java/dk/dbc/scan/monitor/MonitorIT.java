@@ -18,9 +18,12 @@
  */
 package dk.dbc.scan.monitor;
 
-import dk.dbc.scan.common.ProfileServiceActions;
 import dk.dbc.scan.common.Profile;
 import dk.dbc.scan.common.ProfileDB;
+import dk.dbc.scan.common.ProfileServiceActions;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,12 +34,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-import org.junit.Before;
-import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *

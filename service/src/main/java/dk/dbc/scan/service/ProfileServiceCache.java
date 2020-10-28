@@ -18,12 +18,15 @@
  */
 package dk.dbc.scan.service;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.HashMap;
+import dk.dbc.vipcore.marshallers.ProfileServiceResponse;
+import org.eclipse.microprofile.metrics.annotation.Timed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheResult;
 import javax.ejb.Stateless;
@@ -31,9 +34,9 @@ import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
-import org.eclipse.microprofile.metrics.annotation.Timed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 
 /**
  *
@@ -44,7 +47,8 @@ public class ProfileServiceCache {
 
     private static final Logger log = LoggerFactory.getLogger(ProfileServiceCache.class);
     private static final ObjectMapper O = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
 
     @Inject
     Config config;
@@ -76,38 +80,23 @@ public class ProfileServiceCache {
                                      ServerErrorException.class,
                                      IOException.class})
     public String filterQueryFor(@CacheKey String agencyId, @CacheKey String profile, String trackingId) throws IOException {
-
-        HashMap<String, Object> params = new HashMap<String, Object>() {
-            {
-                put("agencyId", agencyId);
-                put("profile", profile);
-                put("trackingId", trackingId);
+        log.debug("filterQueryFor called with agency {} and profile {}", agencyId, profile);
+        URI uri = config.getVipCore().path("profileservice/search/{agencyId}/{profile}").build(agencyId, profile);
+        try (InputStream is = config.getVipCoreHttpClient(trackingId)
+                             .target(uri)
+                             .request(MediaType.APPLICATION_JSON)
+                             .get(InputStream.class))
+        {
+            ProfileServiceResponse resp = O.readValue(is, ProfileServiceResponse.class);
+            if (resp.getError() != null) {
+                log.warn("Got an error: {} for agency {} and profile {}", resp.getError().value(), agencyId, profile);
+                throw new ServerErrorException(resp.getError().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
             }
-        };
-        URI uri = config.getProfileService()
-                .buildFromMap(params);
-
-        log.debug("fetching profile: {}", uri);
-        try (InputStream is = config.getHttpClient()
-                .target(uri)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .buildGet()
-                .invoke(InputStream.class)) {
-            Response resp = O.readValue(is, Response.class);
-            if (resp.success)
-                return resp.filterQuery;
-            log.warn("Got an error: {} for: {}", resp.error, uri);
-            throw new ServerErrorException(resp.error, javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+            final String res = resp.getFilterQuery();
+            return res;
+        } catch (JsonParseException e) {
+            log.warn("Error occurred when fetching filter query for agency {}, profile {}: {}", agencyId, profile, e.getMessage());
+            throw new ServerErrorException(e.getMessage(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    /**
-     * DTO for the profile-service call
-     */
-    private static class Response {
-
-        public boolean success;
-        public String error;
-        public String filterQuery;
     }
 }

@@ -9,6 +9,7 @@ LABEL \
   SOLR_URL="zookeeper/http url of solr collection (required)" \
   SOLR_APPID="Application ID pass to SOLR, for logging in SOLR (Required)" \
   SYSTEM_NAME="environment in which it runs for hazelcast naming (required)" \
-  USER_AGENT="Name of application for http requests"
+  USER_AGENT="Name of application for http requests" \
+  VIPCORE_ENDPOINT="VipCore endpoint (required)"
 
 COPY target/${project.build.finalName}.war target/docker/app.json deployments/

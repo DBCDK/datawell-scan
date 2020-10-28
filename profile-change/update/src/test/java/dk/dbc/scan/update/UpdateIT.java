@@ -22,18 +22,23 @@ import dk.dbc.scan.common.Profile;
 import dk.dbc.scan.common.ProfileDB;
 import dk.dbc.scan.common.ProfileServiceActions;
 import dk.dbc.scan.common.ReThrowException;
+import org.junit.Test;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.junit.Test;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 /**
  *

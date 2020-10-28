@@ -18,11 +18,12 @@
  */
 package dk.dbc.scan.common;
 
-import java.net.URI;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import java.net.URI;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
@@ -34,11 +35,11 @@ public class ProfileServiceActionsTest {
     public void testUri() throws Exception {
         System.out.println("testUri");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:12345");
+        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:12345/api");
 
         URI uri = psa.getUri(123456, "abc");
         System.out.println("uri = " + uri);
-        assertThat(uri.toString(), is("http://localhost:12345/api/profile/123456/abc"));
+        assertThat(uri.toString(), is("http://localhost:12345/api/profileservice/search/123456/abc"));
     }
 
 }

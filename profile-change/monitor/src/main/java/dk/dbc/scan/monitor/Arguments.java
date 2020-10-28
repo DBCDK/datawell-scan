@@ -52,7 +52,7 @@ public class Arguments {
     private final Option help;
     private final Option verbose;
     private final Option db;
-    private final Option profileService;
+    private final Option vipCore;
     private final Option quiet;
 
     private CommandLine commandLine;
@@ -79,14 +79,12 @@ public class Arguments {
                         .argName("DB")
                         .desc("Database url")
                         .build())
-                .addOption(this.profileService = Option.builder("p")
-                        .longOpt("profile-service")
+                .addOption(this.vipCore = Option.builder("V")
+                        .longOpt("vipcore")
                         .hasArg()
-                        .required()
-                        .argName("URL")
-                        .desc("The root of the profile service")
+                        .required().argName("URL")
+                        .desc("VipCore endpoint")
                         .build());
-
         try {
             Stream.Builder<String> missing = parseAsNonRequired(args, help);
 
@@ -125,8 +123,8 @@ public class Arguments {
         return unmodifiableList(profiles);
     }
 
-    public String getProfileService() {
-        return getOpt(profileService, null);
+    public String getVipCore() {
+        return getOpt(vipCore, null);
     }
 
     private void addPositionalArguments() {

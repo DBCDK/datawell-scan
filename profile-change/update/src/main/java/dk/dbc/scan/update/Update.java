@@ -128,7 +128,7 @@ public class Update {
     }
 
     ProfileServiceActions createProfileServiceActions(Arguments arguments) {
-        return new ProfileServiceActions(arguments.getProfileService());
+        return new ProfileServiceActions(arguments.getVipCoreEndpoint());
     }
 
 }
