@@ -55,7 +55,7 @@ public class ManifestationId {
     }
 
     public QueueJob asQueueJob() {
-        return new QueueJob(agencyId, classifier, bibliographicRecordId);
+        return QueueJob.manifestation(agencyId, classifier, bibliographicRecordId);
     }
 
     @Override
