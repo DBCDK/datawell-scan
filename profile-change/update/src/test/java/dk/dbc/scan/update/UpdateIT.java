@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
  */
 public class UpdateIT extends DB {
 
-    @Test(timeout = 2_000L)
+    @Test(timeout = 10_000L)
     public void testUpdate() throws Exception {
         System.out.println("testUpdate");
 
