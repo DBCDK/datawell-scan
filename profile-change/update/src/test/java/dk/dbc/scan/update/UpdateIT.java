@@ -132,9 +132,9 @@ public class UpdateIT extends DB {
         ArrayList<String> list = new ArrayList<>();
         try (Connection connction = solrDocStoreDs.getConnection() ;
              Statement stmt = connction.createStatement() ;
-             ResultSet resultSet = stmt.executeQuery("DELETE FROM queue RETURNING agencyId, classifier, bibliographicRecordId")) {
+             ResultSet resultSet = stmt.executeQuery("DELETE FROM queue RETURNING jobId")) {
             while (resultSet.next()) {
-                list.add(resultSet.getInt(1) + "-" + resultSet.getString(2) + ":" + resultSet.getString(3));
+                list.add(resultSet.getString(1));
             }
         }
         return list;

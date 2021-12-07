@@ -74,7 +74,7 @@ public class DB {
         wipeDatabase(profileDs);
         wipeDatabase(solrDocStoreDs);
         dk.dbc.scan.common.ProfileDB.migrate(profileDs);
-        dk.dbc.search.solrdocstore.db.DatabaseMigrator.migrate(solrDocStoreDs, false);
+        dk.dbc.search.solrdocstore.db.DatabaseMigrator.migrate(solrDocStoreDs);
 
         solrUrl = "zk://localhost:" + System.getProperty("solr.zk.port", "2181") + "/corepo";
         solr = SolrApi.makeSolrClient(solrUrl);
