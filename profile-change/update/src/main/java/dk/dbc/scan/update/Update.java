@@ -18,8 +18,8 @@
  */
 package dk.dbc.scan.update;
 
-import dk.dbc.pgqueue.BatchQueueSupplier;
-import dk.dbc.pgqueue.QueueSupplier;
+import dk.dbc.pgqueue.supplier.BatchQueueSupplier;
+import dk.dbc.pgqueue.supplier.QueueSupplier;
 import dk.dbc.scan.common.Profile;
 import dk.dbc.scan.common.ProfileDB;
 import dk.dbc.scan.common.ProfileServiceActions;
