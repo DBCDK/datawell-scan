@@ -1,4 +1,4 @@
-FROM docker.dbc.dk/payara5-micro:latest
+FROM docker-dbc.artifacts.dbccloud.dk/payara5-micro:latest
 
 LABEL \
   CACHE_TIMEOUT="Number of seconds to cache the response from profile-service (required)" \

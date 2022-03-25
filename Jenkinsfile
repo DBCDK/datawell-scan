@@ -1,5 +1,5 @@
 // TODO change repository URL to proper scrum team URL
-def dockerRepository = 'https://docker-os.dbc.dk'
+def dockerRepository = 'https://docker-de.artifacts.dbccloud.dk'
 def workerNode = 'devel10'
 
 properties([
@@ -144,7 +144,7 @@ pipeline {
             agent {
                 docker {
                     label workerNode
-                    image "docker.dbc.dk/build-env:latest"
+                    image "docker-dbc.artifacts.dbccloud.dk/build-env:latest"
                     alwaysPull true
                 }
             }
