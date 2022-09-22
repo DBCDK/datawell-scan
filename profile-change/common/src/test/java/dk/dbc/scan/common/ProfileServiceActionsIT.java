@@ -18,6 +18,7 @@
  */
 package dk.dbc.scan.common;
 
+import dk.dbc.wiremock.test.WireMockFromDirectory;
 import org.junit.Test;
 
 import java.util.Map;
@@ -37,24 +38,30 @@ public class ProfileServiceActionsIT {
     public void testGetProfile() throws Exception {
         System.out.println("testGetProfile");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/api");
+        try (WireMockFromDirectory wiremock = new WireMockFromDirectory("src/test/resources/wiremock")) {
 
-        Profile profile = psa.getProfile("102030-danbib");
-        assertThat(profile.contains("800000-danbib"), is(true));
-        assertThat(profile.contains("870970-danbib"), is(true));
+            ProfileServiceActions psa = new ProfileServiceActions(wiremock.url("/vipcore/api"));
+
+            Profile profile = psa.getProfile("102030-danbib");
+            assertThat(profile.contains("800000-danbib"), is(true));
+            assertThat(profile.contains("870970-danbib"), is(true));
+        };
     }
 
     @Test(timeout = 2_000L)
     public void testGetProfiles() throws Exception {
         System.out.println("testGetProfiles");
 
-        ProfileServiceActions psa = new ProfileServiceActions("http://localhost:" + System.getProperty("wiremock.port", "80") + "/vipcore/api");
+        try (WireMockFromDirectory wiremock = new WireMockFromDirectory("src/test/resources/wiremock")) {
 
-        Map<String, Profile> profiles = psa.getProfiles(asList("102030-danbib"));
-        assertThat(profiles.size(), is(1));
-        assertThat(profiles.get("102030-danbib"), notNullValue());
-        Profile profile = profiles.get("102030-danbib");
-        assertThat(profile.contains("800000-danbib"), is(true));
-        assertThat(profile.contains("870970-danbib"), is(true));
+            ProfileServiceActions psa = new ProfileServiceActions(wiremock.url("/vipcore/api"));
+
+            Map<String, Profile> profiles = psa.getProfiles(asList("102030-danbib"));
+            assertThat(profiles.size(), is(1));
+            assertThat(profiles.get("102030-danbib"), notNullValue());
+            Profile profile = profiles.get("102030-danbib");
+            assertThat(profile.contains("800000-danbib"), is(true));
+            assertThat(profile.contains("870970-danbib"), is(true));
+        }
     }
 }

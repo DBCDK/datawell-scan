@@ -18,101 +18,84 @@
  */
 package dk.dbc.scan.update;
 
+import com.github.dockerjava.api.model.ContainerNetwork;
+import dk.dbc.commons.testcontainers.postgres.AbstractJpaTestBase;
+import dk.dbc.scan.common.ProfileDB;
+import dk.dbc.search.solrdocstore.db.DatabaseMigrator;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
+import javax.ws.rs.core.UriBuilder;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.junit.Before;
-import org.postgresql.ds.PGSimpleDataSource;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.Container;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.utility.DockerImageName;
+
+import static dk.dbc.commons.testcontainers.postgres.AbstractJpaTestBase.PG;
 
 /**
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class DB {
+public class DB extends AbstractJpaTestBase {
 
-    protected String solrDocStoreUrl;
-    protected PGSimpleDataSource solrDocStoreDs;
-    protected String profileUrl;
-    protected PGSimpleDataSource profileDs;
-    protected String solrUrl;
-    protected SolrClient solr;
+    public static final String PG_URL = pgUrl();
+    private SolrClient solr;
+
+    private static final GenericContainer SOLR = makeSolr();
+    public static final String SOLR_URL = UriBuilder.fromUri(makeContainerUrl(SOLR, 8983)).path("solr").path("corepo").toString();
+    public static final URI ZK_URL = URI.create("zk://" + containerIp(SOLR) + ":9983/");
+
+    @Override
+    public void migrate(DataSource ds) {
+        DatabaseMigrator.migrate(ds);
+        ProfileDB.migrate(ds);
+    }
+
+    @Override
+    public String persistenceUnitName() {
+        return null;
+    }
+
+    @Override
+    public Collection<String> keepContentOfTables() {
+        return Collections.singleton("flyway_schema_history");
+    }
+
+    private static String pgUrl() {
+        String ip = containerNetwork(PG).getIpAddress();
+        return PG.getUsername() + ":" + PG.getPassword() + "@" + ip + ":5432/" + PG.getDatabaseName();
+    }
 
     @Before
-    public void setUpDbAndSolr() throws Exception {
-
-        String dbBase = "localhost:" + System.getProperty("postgresql.port", "5432");
-        if (dbBase.endsWith(":5432"))
-            dbBase = System.getProperty("user.name") + ":" + System.getProperty("user.name") + "@" + dbBase;
-
-        profileUrl = dbBase + "/profile";
-        solrDocStoreUrl = dbBase + "/solrdocstore";
-        profileDs = makeDataSource(profileUrl);
-        solrDocStoreDs = makeDataSource(solrDocStoreUrl);
-
-        try {
-            solrDocStoreDs.getConnection().close();
-        } catch (SQLException ex) {
-            System.out.println("ex = " + ex);
-            try (Connection connection = profileDs.getConnection() ;
-                 Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate("CREATE DATABASE solrdocstore");
-            }
-        }
-        wipeDatabase(profileDs);
-        wipeDatabase(solrDocStoreDs);
-        dk.dbc.scan.common.ProfileDB.migrate(profileDs);
-        dk.dbc.search.solrdocstore.db.DatabaseMigrator.migrate(solrDocStoreDs);
-
-        solrUrl = "zk://localhost:" + System.getProperty("solr.zk.port", "2181") + "/corepo";
-        solr = SolrApi.makeSolrClient(solrUrl);
-
+    public void setUpSolr() throws Exception {
+        solr = SolrApi.makeSolrClient(ZK_URL + "corepo");
         solr.deleteByQuery("*:*");
         solr.commit();
-    }
-
-    private static void wipeDatabase(DataSource dataSource) throws SQLException {
-        try (Connection connection = dataSource.getConnection() ;
-             Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate("DROP SCHEMA public CASCADE");
-            stmt.executeUpdate("CREATE SCHEMA public");
-        }
-    }
-
-    private static PGSimpleDataSource makeDataSource(String url) {
-        PGSimpleDataSource ds = new PGSimpleDataSource();
-
-        Matcher matcher = Pattern.compile("(?:postgres(?:ql)?://)?(?:([^:@]+)(?::([^@]*))@)?([^:/]+)(?::([1-9][0-9]*))?/(.+)").matcher(url);
-        if (matcher.matches()) {
-            String user = matcher.group(1);
-            String pass = matcher.group(2);
-            String host = matcher.group(3);
-            String port = matcher.group(4);
-            String base = matcher.group(5);
-            if (user != null)
-                ds.setUser(user);
-            if (pass != null)
-                ds.setPassword(pass);
-            ds.setServerNames(new String[] {host});
-            if (port != null)
-                ds.setPortNumbers(new int[] {Integer.parseUnsignedInt(port)});
-            ds.setDatabaseName(base);
-            return ds;
-        } else {
-            throw new IllegalArgumentException("This is not a valid database url: " + url);
-        }
     }
 
     void addDocuments(Function<InputDoc, InputDoc>... func) throws SolrServerException, IOException {
@@ -162,6 +145,61 @@ public class DB {
             return this;
         }
 
+    }
+
+    private static GenericContainer makeSolr() {
+        String fromImage = "docker-dbc.artifacts.dbccloud.dk/dbc-solr9:latest";
+        dockerPull(fromImage);
+
+        ImageFromDockerfile image = new ImageFromDockerfile()
+                .withFileFromPath("target/solr/corepo-config", Path.of("target/solr/corepo-config").toAbsolutePath())
+                .withDockerfileFromBuilder(dockerfile ->
+                        dockerfile.from(fromImage)
+                                .add("target/solr/corepo-config/", "/collections/corepo/")
+                                .user("root")
+                                .run("chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr")
+                                .user("$SOLR_USER")
+                                .build());
+        GenericContainer solr = new GenericContainer(image)
+                .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("dk.dbc.SOLR")))
+                .withEnv("ZKSTRING", "localhost")
+                .withExposedPorts(8983)
+                .waitingFor(Wait.forHttp("/solr/corepo/select?q=*:*"))
+                .withStartupTimeout(Duration.ofMinutes(1));
+        solr.start();
+        return solr;
+    }
+
+    private static URI makeContainerUrl(GenericContainer container, int port) {
+        return URI.create("http://" + containerIp(container) + ":" + port);
+    }
+
+    private static String containerIp(GenericContainer container) {
+        return containerNetwork(container).getIpAddress();
+    }
+
+    private static ContainerNetwork containerNetwork(Container container) {
+        return container.getContainerInfo()
+                .getNetworkSettings()
+                .getNetworks()
+                .values()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No docker network available"));
+    }
+
+    private static void dockerPull(String image) {
+        try {
+            // pull image
+            DockerImageName from = DockerImageName.parse(image);
+            DockerClientFactory.instance().client()
+                    .pullImageCmd(from.getUnversionedPart())
+                    .withTag(from.getVersionPart())
+                    .start()
+                    .awaitCompletion(30, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 }
