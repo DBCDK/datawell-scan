@@ -52,6 +52,7 @@ public class ProfileDB extends GenericPostgreSQL {
     public static void migrate(DataSource ds) {
         Flyway flyway = Flyway.configure()
                 .baselineOnMigrate(true)
+                .baselineVersion("0")
                 .dataSource(ds)
                 .locations("db/migrate")
                 .load();

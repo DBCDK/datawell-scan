@@ -36,8 +36,6 @@ public class SolrApiIT extends DB {
     public void streamManifestationIds() throws Exception {
         System.out.println("streamManifestationIds");
 
-
-
         addDocuments(
                 d -> d.manifestationId("870970-basis:12345678")
                         .collectionIdentifier("870970-basis")
@@ -50,7 +48,7 @@ public class SolrApiIT extends DB {
         );
 
         ArrayList<String> manifestationIds = new ArrayList<>();
-        SolrApi solrApi = new SolrApi(solrUrl);
+        SolrApi solrApi = new SolrApi(ZK_URL + "corepo");
         solrApi.manifestationIdStreamOf("*:*")
                 .map(Object::toString)
                 .forEach(manifestationIds::add);

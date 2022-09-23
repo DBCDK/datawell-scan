@@ -30,7 +30,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -189,7 +189,7 @@ public class SolrApi {
 
             return solrClient;
         } else {
-            return new HttpSolrClient.Builder(solrUrl)
+            return new Http2SolrClient.Builder(solrUrl)
                     .build();
         }
     }

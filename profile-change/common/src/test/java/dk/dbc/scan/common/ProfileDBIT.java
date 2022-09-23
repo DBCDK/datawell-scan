@@ -18,11 +18,8 @@
  */
 package dk.dbc.scan.common;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -38,47 +35,12 @@ import static org.hamcrest.Matchers.is;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class ProfileDBIT {
-
-    private DataSource ds;
-    private String pgUrl;
-
-    public ProfileDBIT() {
-    }
-
-    @Before
-    public void setUp() {
-        String port = System.getProperty("postgresql.port");
-        if (port != null) {
-            pgUrl = "localhost:" + port + "/profiledb";
-        } else {
-            pgUrl = "duser:dpass@localhost/data";
-        }
-        this.ds = new GenericPostgreSQL(pgUrl);
-    }
-
-    @After
-    public void tearDown() {
-    }
-
-    @Test(timeout = 2_000L)
-    public void testMigrate() throws Exception {
-        System.out.println("testMigrate");
-
-        try (Connection connection = ds.getConnection() ;
-             Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate("DROP SCHEMA public CASCADE");
-            stmt.executeUpdate("CREATE SCHEMA public");
-        }
-        ProfileDB profileDb = new ProfileDB(pgUrl);
-        profileDb.migrate();
-    }
+public class ProfileDBIT extends IntegrationTestBase {
 
     @Test(timeout = 2_000L)
     public void testReadProfiles() throws Exception {
         System.out.println("testReadProfiles");
-        ProfileDB profileDb = new ProfileDB(pgUrl);
-        profileDb.migrate();
+        ProfileDB profileDb = new ProfileDB(PG_URL);
         clearDb();
         addToDb("123456-abc", "123456-katalog", "870970-basis");
         addToDb("654321-abc", "777777-katalog", "870970-basis");
@@ -94,8 +56,7 @@ public class ProfileDBIT {
     @Test(timeout = 2_000L)
     public void testUpdateProfiles() throws Exception {
         System.out.println("testUpdateProfiles");
-        ProfileDB profileDb = new ProfileDB(pgUrl);
-        profileDb.migrate();
+        ProfileDB profileDb = new ProfileDB(PG_URL);
         clearDb();
         addToDb("123456-abc", "123456-katalog", "870970-basis");
         addToDb("654321-abc", "777777-katalog", "870970-basis");
@@ -118,14 +79,14 @@ public class ProfileDBIT {
     }
 
     public void clearDb() throws SQLException {
-        try (Connection connection = ds.getConnection() ;
+        try (Connection connection = PG.createConnection() ;
              Statement stmt = connection.createStatement()) {
             stmt.executeUpdate("TRUNCATE profiles");
         }
     }
 
     public void addToDb(String profile, String... collectionIdentifiers) throws SQLException {
-        try (Connection connection = ds.getConnection() ;
+        try (Connection connection = PG.createConnection() ;
              PreparedStatement stmt = connection.prepareStatement("INSERT INTO profiles(agencyId, classifier, collectionIdentifier) VALUES(?, ?, ?)")) {
             String[] parts = profile.split("-", 2);
             stmt.setInt(1, Integer.parseInt(parts[0]));

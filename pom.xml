@@ -14,7 +14,7 @@
     <parent>
         <groupId>dk.dbc</groupId>
         <artifactId>microservice-pom</artifactId>
-        <version>latest-SNAPSHOT</version>
+        <version>java11-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -24,7 +24,7 @@
     
     
     <properties>
-        <solr.version>8.8.1</solr.version>
+        <solr.version>9.0.0</solr.version>
     </properties>
 
     <modules>

@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.client.solrj.io.SolrClientCache;
 import org.apache.solr.client.solrj.io.Tuple;
 import org.apache.solr.client.solrj.io.stream.StreamContext;
@@ -78,7 +78,7 @@ public class SolrApi {
 
             return solrClient;
         } else {
-            return new HttpSolrClient.Builder(solrUrl)
+            return new Http2SolrClient.Builder(solrUrl)
                     .build();
         }
     }

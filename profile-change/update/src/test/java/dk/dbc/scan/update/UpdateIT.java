@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import static java.util.Arrays.asList;
@@ -38,7 +39,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 /**
  *
@@ -63,9 +63,8 @@ public class UpdateIT extends DB {
                         .collectionIdentifier("700000-katalog") // add by collectionIdentifier
         );
 
-        ProfileDB profileDB = new ProfileDB(profileUrl);
-        SolrApi solrApi = new SolrApi(solrUrl);
-        SolrDocStoreDB solrDocStoreDB = new SolrDocStoreDB(solrDocStoreUrl);
+        ProfileDB profileDB = new ProfileDB(PG_URL);
+        SolrApi solrApi = new SolrApi(ZK_URL + "corepo");
         Profile profile = new Profile(asList("102030-foo",
                                              "102030-bar"));
         profileDB.updateProfiles(profileDB.readProfiles(), new HashMap<String, Profile>() {
@@ -97,7 +96,13 @@ public class UpdateIT extends DB {
 
             @Override
             SolrDocStoreDB createSolrDocStoreDb(Arguments arguments) {
-                return solrDocStoreDB;
+                SolrDocStoreDB mock = mock(SolrDocStoreDB.class);
+                try {
+                    when(mock.getQueues()).thenReturn(Collections.emptyList());
+                    when(mock.getConnection()).then(inv -> PG.createConnection());
+                } catch (SQLException ex) {
+                }
+                return mock;
             }
         };
         Arguments arguments = mock(Arguments.class);
@@ -130,7 +135,7 @@ public class UpdateIT extends DB {
 
     private ArrayList<String> listQueue() throws SQLException {
         ArrayList<String> list = new ArrayList<>();
-        try (Connection connction = solrDocStoreDs.getConnection() ;
+        try (Connection connction = PG.createConnection() ;
              Statement stmt = connction.createStatement() ;
              ResultSet resultSet = stmt.executeQuery("DELETE FROM queue RETURNING jobId")) {
             while (resultSet.next()) {

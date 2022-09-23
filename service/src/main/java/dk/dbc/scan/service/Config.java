@@ -19,6 +19,8 @@
 package dk.dbc.scan.service;
 
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
@@ -59,10 +61,10 @@ public class Config {
         this.env = System.getenv();
     }
 
-    static Config instance() {
-        Config that = new Config();
-        that.init();
-        return that;
+    public Config(String... env) {
+        this.env = Stream.of(env)
+                .map(s -> s.split("=", 2))
+                .collect(Collectors.toMap(a -> a[0], a -> a[1]));
     }
 
     @PostConstruct

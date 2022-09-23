@@ -18,6 +18,7 @@
  */
 package dk.dbc.scan.monitor;
 
+import dk.dbc.commons.testcontainers.postgres.AbstractJpaTestBase;
 import dk.dbc.scan.common.Profile;
 import dk.dbc.scan.common.ProfileDB;
 import dk.dbc.scan.common.ProfileServiceActions;
@@ -31,10 +32,13 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.regex.Pattern;
+import javax.sql.DataSource;
 
+import static dk.dbc.commons.testcontainers.postgres.AbstractJpaTestBase.PG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -47,21 +51,41 @@ import static org.mockito.Mockito.when;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class MonitorIT {
+public class MonitorIT extends AbstractJpaTestBase {
 
-    private String pgUrl;
+    public static final String PG_URL = pgUrl();
     private ProfileDB profileDb;
+
+    @Override
+    public void migrate(DataSource ds) {
+        ProfileDB.migrate(ds);
+    }
+
+    @Override
+    public String persistenceUnitName() {
+        return null;
+    }
+
+    @Override
+    public Collection<String> keepContentOfTables() {
+        return Collections.singleton("flyway_schema_history");
+    }
+
+    private static String pgUrl() {
+        String ip = PG.getContainerInfo()
+                .getNetworkSettings()
+                .getNetworks()
+                .values()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No docker network available"))
+                .getIpAddress();
+        return PG.getUsername() + ":" + PG.getPassword() + "@" + ip + ":5432/" + PG.getDatabaseName();
+    }
 
     @Before
     public void setUp() {
-        String port = System.getProperty("postgresql.port");
-        if (port != null) {
-            pgUrl = "localhost:" + port + "/profiledb";
-        } else {
-            pgUrl = "bogeskov:bogeskov@localhost/data";
-        }
-        profileDb = new ProfileDB(pgUrl);
-        profileDb.migrate();
+        profileDb = new ProfileDB(PG_URL);
     }
 
     @Test(timeout = 2_000L)
@@ -93,7 +117,7 @@ public class MonitorIT {
 
         Arguments a = mock(Arguments.class);
         when(a.getProfiles()).thenReturn(Collections.singletonList("102030-danbib"));
-        when(a.getDb()).thenReturn(pgUrl);
+        when(a.getDb()).thenReturn(PG_URL);
 
         boolean same = monitor.run(a);
 
@@ -133,7 +157,7 @@ public class MonitorIT {
 
         Arguments a = mock(Arguments.class);
         when(a.getProfiles()).thenReturn(Collections.singletonList("102030-danbib"));
-        when(a.getDb()).thenReturn(pgUrl);
+        when(a.getDb()).thenReturn(PG_URL);
 
         boolean same = monitor.run(a);
 
@@ -180,7 +204,7 @@ public class MonitorIT {
 
         Arguments a = mock(Arguments.class);
         when(a.getProfiles()).thenReturn(Arrays.asList("102030-danbib", "102030-extra"));
-        when(a.getDb()).thenReturn(pgUrl);
+        when(a.getDb()).thenReturn(PG_URL);
 
         boolean same = monitor.run(a);
 
@@ -225,7 +249,7 @@ public class MonitorIT {
 
         Arguments a = mock(Arguments.class);
         when(a.getProfiles()).thenReturn(Arrays.asList("102030-danbib"));
-        when(a.getDb()).thenReturn(pgUrl);
+        when(a.getDb()).thenReturn(PG_URL);
 
         boolean same = monitor.run(a);
 

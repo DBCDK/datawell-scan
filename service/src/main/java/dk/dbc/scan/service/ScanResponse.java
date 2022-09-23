@@ -55,7 +55,7 @@ public class ScanResponse {
             this.result = result;
         }
 
-    };
+    }
 
     public static class Failure {
 
@@ -85,7 +85,7 @@ public class ScanResponse {
         public void setRequest(Request request) {
             this.request = request;
         }
-    };
+    }
 
     public static class Request {
 

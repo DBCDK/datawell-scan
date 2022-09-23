@@ -34,13 +34,13 @@ public class SolrDocumentLoader {
     private final AtomicInteger id;
     private final SolrClient client;
 
-    public static SolrDocumentLoader emptySolr() throws SolrServerException, IOException {
-        return new SolrDocumentLoader().clear();
+    public static SolrDocumentLoader emptySolr(String solrUrl) throws SolrServerException, IOException {
+        return new SolrDocumentLoader(solrUrl).clear();
     }
 
-    public SolrDocumentLoader() {
+    public SolrDocumentLoader(String solrUrl) {
         this.id = new AtomicInteger();
-        this.client = SolrApi.makeSolrClient(System.getenv("SOLR_URL"));
+        this.client = SolrApi.makeSolrClient(solrUrl);
     }
 
     public SolrDocumentLoader clear() throws SolrServerException, IOException {

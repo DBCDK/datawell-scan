@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static dk.dbc.scan.service.SolrDocumentLoader.emptySolr;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -39,7 +38,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class ScanIT {
+public class ScanIT extends IntegrtationTestBase {
 
     @Test(timeout = 20_000L)
     public void testCase() throws Exception {
@@ -81,7 +80,12 @@ public class ScanIT {
 
         ExecutorService mes = Executors.newFixedThreadPool(25);
 
-        Config config = Config.instance();
+        Config config = new Config(
+                "SOLR_URL=" + ZK_URL + "corepo",
+                "SOLR_APPID=datawellscan",
+                "VIPCORE_ENDPOINT=" + WIREMOCK_URL + "/vipcore/api"
+        );
+        config.init();
         ProfileServiceCache psCache = ProfileServiceCache.instance(config);
         SolrApi solrApi = SolrApi.instance(config);
         ScanLogic scanLogic = ScanLogic.instance(config, psCache, solrApi, mes);
