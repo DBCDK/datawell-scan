@@ -33,6 +33,7 @@
             <artifactId>solr-doc-store-queue</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>pg-queue-supplier</artifactId>
@@ -55,7 +56,7 @@
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>dbc-commons-testcontainers-postgres</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>2.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
@@ -65,12 +66,10 @@
             <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
             
     <build>
         <plugins>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -140,7 +139,5 @@
                 </configuration>
             </plugin>
         </plugins>
-        
     </build>
-
 </project>

@@ -26,13 +26,13 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.UriBuilder;
 
 import dk.dbc.vipcore.marshallers.ProfileServiceResponse;
 import org.slf4j.Logger;
@@ -81,7 +81,7 @@ public class ProfileServiceActions {
             ProfileServiceResponse resp = O.readValue(is, ProfileServiceResponse.class);
             if (resp.getError() != null) {
                 log.warn("Got an error: {} for: {}", resp.getError().value(), uri);
-                throw new ServerErrorException(resp.getError().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+                throw new ServerErrorException(resp.getError().value(), jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
             }
             return new Profile(resp.getCollectionIdentifiers());
         }

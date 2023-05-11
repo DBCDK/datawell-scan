@@ -18,7 +18,7 @@
  */
 package dk.dbc.scan.service;
 
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import org.junit.Test;
 
 

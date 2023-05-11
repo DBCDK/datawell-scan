@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheResult;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.MediaType;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -90,13 +90,13 @@ public class ProfileServiceCache {
             ProfileServiceResponse resp = O.readValue(is, ProfileServiceResponse.class);
             if (resp.getError() != null) {
                 log.warn("Got an error: {} for agency {} and profile {}", resp.getError().value(), agencyId, profile);
-                throw new ServerErrorException(resp.getError().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+                throw new ServerErrorException(resp.getError().value(), jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
             }
             final String res = resp.getFilterQuery();
             return res;
         } catch (JsonParseException e) {
             log.warn("Error occurred when fetching filter query for agency {}, profile {}: {}", agencyId, profile, e.getMessage());
-            throw new ServerErrorException(e.getMessage(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException(e.getMessage(), jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }

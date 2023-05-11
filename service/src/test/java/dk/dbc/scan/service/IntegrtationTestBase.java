@@ -9,7 +9,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.AfterClass;
 import org.slf4j.LoggerFactory;
