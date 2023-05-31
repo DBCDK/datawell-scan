@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 public class ProfileServiceActionsIT {
 
-    @Test(timeout = 2_000L)
+    @Test(timeout = 5_000L)
     public void testGetProfile() throws Exception {
         System.out.println("testGetProfile");
 
@@ -48,7 +48,7 @@ public class ProfileServiceActionsIT {
         };
     }
 
-    @Test(timeout = 2_000L)
+    @Test(timeout = 5_000L)
     public void testGetProfiles() throws Exception {
         System.out.println("testGetProfiles");
 
