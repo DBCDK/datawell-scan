@@ -132,11 +132,6 @@ public class DB extends AbstractJpaTestBase {
             return this;
         }
 
-        InputDoc holdingsAgencyId(String id) {
-            addField("rec.holdingsAgencyId", id);
-            return this;
-        }
-
         SolrInputDocument build() {
             SolrInputField field = getField("rec.manifestationId");
             if (field == null || field.getValueCount() == 0)

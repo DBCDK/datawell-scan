@@ -39,12 +39,10 @@ public class SolrApiIT extends DB {
         addDocuments(
                 d -> d.manifestationId("870970-basis:12345678")
                         .collectionIdentifier("870970-basis")
-                        .collectionIdentifier("800000-danbib")
-                        .holdingsAgencyId("700000"),
+                        .collectionIdentifier("800000-danbib"),
                 d -> d.manifestationId("777777-katalog:12345678")
                         .repositoryId("870970-basis:12345678")
                         .collectionIdentifier("777777-katalog")
-                        .holdingsAgencyId("777777")
         );
 
         ArrayList<String> manifestationIds = new ArrayList<>();
