@@ -41,11 +41,4 @@ public class ScanServiceApplication extends Application {
     public Set<Class<?>> getClasses() {
         return CLASSES;
     }
-
-    @Override
-    public Set<Object> getSingletons() {
-        final Set<Object> singletons = new HashSet<>();
-        singletons.add(new JsonMapperProvider());
-        return singletons;
-    }
 }

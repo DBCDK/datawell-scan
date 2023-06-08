@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import dk.dbc.vipcore.marshallers.ProfileServiceResponse;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.slf4j.Logger;
@@ -46,9 +47,11 @@ import java.net.URI;
 public class ProfileServiceCache {
 
     private static final Logger log = LoggerFactory.getLogger(ProfileServiceCache.class);
-    private static final ObjectMapper O = new ObjectMapper()
+    private static final ObjectMapper O = JsonMapper
+            .builder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+            .build();
 
     @Inject
     Config config;
