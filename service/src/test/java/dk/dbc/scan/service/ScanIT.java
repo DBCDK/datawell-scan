@@ -76,6 +76,14 @@ public class ScanIT extends IntegrationTestBase {
                      .withScan("lti", "zoo", "123456_that")
                      .withCollectionIdentifier("777777-katalog")
                      .withCollectionIdentifier("654321-danbib"))
+                .add(2, d -> d
+                        .withScan("lti", "", "123456_that") // empty value
+                        .withCollectionIdentifier("777777-katalog")
+                        .withCollectionIdentifier("654321-danbib"))
+                .add(2, d -> d
+                        .withScan("lti", null, "123456_that") // null value
+                        .withCollectionIdentifier("777777-katalog")
+                        .withCollectionIdentifier("654321-danbib"))
                 .commit();
 
         ExecutorService mes = Executors.newFixedThreadPool(25);
@@ -102,6 +110,8 @@ public class ScanIT extends IntegrationTestBase {
         assertThat(terms1, hasItem("zoo"));
         assertThat(terms1, not(hasItem("hello butler")));
 
+        assertThat(terms1.size(), is(7)); // test that null and empty terms no not get included in response
+
         Set<String> terms2 = scan.scan(123456, "that", "hello", "scan.lti", 2, false, "test")
                 .getResult()
                 .getTerms()
@@ -111,10 +121,6 @@ public class ScanIT extends IntegrationTestBase {
         assertThat(terms2, hasItems("hello abe", "hello cat"));
         assertThat(terms2.size(), is(2));
         assertThat(terms2, not(hasItem("hello world")));
-
-        ScanResponse.Result result = scan.scan(123456, "that", "hello", "scan.lti", 20, false, "test")
-                                         .getResult();
-
 
 
         List<Runnable> pending = mes.shutdownNow();
