@@ -38,7 +38,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class ScanIT extends IntegrtationTestBase {
+public class ScanIT extends IntegrationTestBase {
 
     @Test(timeout = 20_000L)
     public void testCase() throws Exception {
@@ -86,6 +86,7 @@ public class ScanIT extends IntegrtationTestBase {
                 "VIPCORE_ENDPOINT=" + WIREMOCK_URL + "/vipcore/api"
         );
         config.init();
+
         ProfileServiceCache psCache = ProfileServiceCache.instance(config);
         SolrApi solrApi = SolrApi.instance(config);
         ScanLogic scanLogic = ScanLogic.instance(config, psCache, solrApi, mes);
@@ -110,6 +111,11 @@ public class ScanIT extends IntegrtationTestBase {
         assertThat(terms2, hasItems("hello abe", "hello cat"));
         assertThat(terms2.size(), is(2));
         assertThat(terms2, not(hasItem("hello world")));
+
+        ScanResponse.Result result = scan.scan(123456, "that", "hello", "scan.lti", 20, false, "test")
+                                         .getResult();
+
+
 
         List<Runnable> pending = mes.shutdownNow();
         assertThat(pending, is(Collections.EMPTY_LIST));

@@ -25,7 +25,7 @@ import org.testcontainers.utility.DockerImageName;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class IntegrtationTestBase {
+public class IntegrationTestBase {
 
     private static final GenericContainer SOLR = makeSolr();
     public static final String SOLR_URL = UriBuilder.fromUri(makeContainerUrl(SOLR, 8983)).path("solr").path("corepo").toString();
