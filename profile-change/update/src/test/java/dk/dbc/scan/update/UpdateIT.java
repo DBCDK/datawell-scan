@@ -57,8 +57,6 @@ public class UpdateIT extends DB {
                         .collectionIdentifier("102030-bar"), // remove by collectionIdentifier
                 d -> d.manifestationId("870970-basis:c")
                         .collectionIdentifier("102030-any"),
-                d -> d.manifestationId("870970-basis:d")
-                        .holdingsAgencyId("777777"), // add by holdingAgencyId
                 d -> d.manifestationId("700000-katalog:e")
                         .collectionIdentifier("700000-katalog") // add by collectionIdentifier
         );
@@ -115,7 +113,6 @@ public class UpdateIT extends DB {
         when(arguments.hasQueue())
                 .thenReturn(true);
 
-        profile.add("777777-katalog"); // holdings agency add
         profile.add("700000-katalog"); // collection identifier add
         profile.remove("102030-bar");  // collection identifier remove
 
@@ -129,7 +126,6 @@ public class UpdateIT extends DB {
 
         assertThat(ok, is(true));
         assertThat(queued, containsInAnyOrder("870970-basis:b",
-                                              "870970-basis:d",
                                               "700000-katalog:e"));
     }
 

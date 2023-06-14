@@ -1,6 +1,5 @@
-// TODO change repository URL to proper scrum team URL
 def dockerRepository = 'https://docker-de.artifacts.dbccloud.dk'
-def workerNode = 'devel10'
+def workerNode = 'devel11'
 
 properties([
     disableConcurrentBuilds()
@@ -11,14 +10,14 @@ if (env.BRANCH_NAME == 'master') {
             triggers: [
                 [
                     $class: 'jenkins.triggers.ReverseBuildTrigger',
-                    upstreamProjects: "Docker-payara5-bump-trigger", threshold: hudson.model.Result.SUCCESS
+                    upstreamProjects: "Docker-payara6-bump-trigger", threshold: hudson.model.Result.SUCCESS
                 ]
             ]
         ])
     ])
 }
 pipeline {
-    agent { label "devel10" }
+    agent { label workerNode }
     tools {
         maven "Maven 3"
         jdk "jdk11"
@@ -71,8 +70,8 @@ pipeline {
                     def cpd = scanForIssues tool: [$class: 'Cpd'], pattern: '**/target/cpd.xml'
                     publishIssues issues:[cpd]
 
-                    def findbugs = scanForIssues tool: [$class: 'FindBugs'], pattern: '**/target/findbugsXml.xml'
-                    publishIssues issues:[findbugs], unstableTotalAll:1
+                    def spotbugs = scanForIssues tool: [$class: 'SpotBugs'], pattern: '**/target/spotbugsXml.xml'
+                    publishIssues issues:[spotbugs], unstableTotalAll:1
 
                     step([$class: 'JacocoPublisher',
                           execPattern: 'target/*.exec,**/target/*.exec',

@@ -21,8 +21,8 @@ package dk.dbc.scan.service;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 /**
  *
@@ -40,12 +40,5 @@ public class ScanServiceApplication extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         return CLASSES;
-    }
-
-    @Override
-    public Set<Object> getSingletons() {
-        final Set<Object> singletons = new HashSet<>();
-        singletons.add(new JsonMapperProvider());
-        return singletons;
     }
 }

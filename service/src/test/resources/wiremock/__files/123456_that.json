@@ -4,5 +4,5 @@
         "123456-katalog"
     ],
     "includeOwnHoldings": true,
-    "filterQuery": "rec.collectionIdentifier:\"777777-katalog\" OR rec.collectionIdentifier:\"123456-katalog\" OR rec.holdingsAgencyId:\"self\""
+    "filterQuery": "rec.collectionIdentifier:\"777777-katalog\" OR rec.collectionIdentifier:\"123456-katalog\""
 }

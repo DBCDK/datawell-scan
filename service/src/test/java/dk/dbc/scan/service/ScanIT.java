@@ -38,7 +38,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class ScanIT extends IntegrtationTestBase {
+public class ScanIT extends IntegrationTestBase {
 
     @Test(timeout = 20_000L)
     public void testCase() throws Exception {
@@ -76,6 +76,14 @@ public class ScanIT extends IntegrtationTestBase {
                      .withScan("lti", "zoo", "123456_that")
                      .withCollectionIdentifier("777777-katalog")
                      .withCollectionIdentifier("654321-danbib"))
+                .add(2, d -> d
+                        .withScan("lti", "", "123456_that") // empty value
+                        .withCollectionIdentifier("777777-katalog")
+                        .withCollectionIdentifier("654321-danbib"))
+                .add(2, d -> d
+                        .withScan("lti", null, "123456_that") // null value
+                        .withCollectionIdentifier("777777-katalog")
+                        .withCollectionIdentifier("654321-danbib"))
                 .commit();
 
         ExecutorService mes = Executors.newFixedThreadPool(25);
@@ -86,6 +94,7 @@ public class ScanIT extends IntegrtationTestBase {
                 "VIPCORE_ENDPOINT=" + WIREMOCK_URL + "/vipcore/api"
         );
         config.init();
+
         ProfileServiceCache psCache = ProfileServiceCache.instance(config);
         SolrApi solrApi = SolrApi.instance(config);
         ScanLogic scanLogic = ScanLogic.instance(config, psCache, solrApi, mes);
@@ -101,6 +110,8 @@ public class ScanIT extends IntegrtationTestBase {
         assertThat(terms1, hasItem("zoo"));
         assertThat(terms1, not(hasItem("hello butler")));
 
+        assertThat(terms1.size(), is(7)); // test that null and empty terms no not get included in response
+
         Set<String> terms2 = scan.scan(123456, "that", "hello", "scan.lti", 2, false, "test")
                 .getResult()
                 .getTerms()
@@ -110,6 +121,7 @@ public class ScanIT extends IntegrtationTestBase {
         assertThat(terms2, hasItems("hello abe", "hello cat"));
         assertThat(terms2.size(), is(2));
         assertThat(terms2, not(hasItem("hello world")));
+
 
         List<Runnable> pending = mes.shutdownNow();
         assertThat(pending, is(Collections.EMPTY_LIST));

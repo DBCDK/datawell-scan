@@ -9,7 +9,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.AfterClass;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import org.testcontainers.utility.DockerImageName;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class IntegrtationTestBase {
+public class IntegrationTestBase {
 
     private static final GenericContainer SOLR = makeSolr();
     public static final String SOLR_URL = UriBuilder.fromUri(makeContainerUrl(SOLR, 8983)).path("solr").path("corepo").toString();

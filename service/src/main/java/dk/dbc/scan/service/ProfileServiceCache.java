@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import dk.dbc.vipcore.marshallers.ProfileServiceResponse;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.slf4j.Logger;
@@ -29,11 +30,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheResult;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.MediaType;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,9 +47,11 @@ import java.net.URI;
 public class ProfileServiceCache {
 
     private static final Logger log = LoggerFactory.getLogger(ProfileServiceCache.class);
-    private static final ObjectMapper O = new ObjectMapper()
+    private static final ObjectMapper O = JsonMapper
+            .builder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+            .build();
 
     @Inject
     Config config;
@@ -90,13 +93,13 @@ public class ProfileServiceCache {
             ProfileServiceResponse resp = O.readValue(is, ProfileServiceResponse.class);
             if (resp.getError() != null) {
                 log.warn("Got an error: {} for agency {} and profile {}", resp.getError().value(), agencyId, profile);
-                throw new ServerErrorException(resp.getError().value(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+                throw new ServerErrorException(resp.getError().value(), jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
             }
             final String res = resp.getFilterQuery();
             return res;
         } catch (JsonParseException e) {
             log.warn("Error occurred when fetching filter query for agency {}, profile {}: {}", agencyId, profile, e.getMessage());
-            throw new ServerErrorException(e.getMessage(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException(e.getMessage(), jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }

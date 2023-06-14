@@ -40,7 +40,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -129,11 +129,6 @@ public class DB extends AbstractJpaTestBase {
 
         InputDoc collectionIdentifier(String id) {
             addField("rec.collectionIdentifier", id);
-            return this;
-        }
-
-        InputDoc holdingsAgencyId(String id) {
-            addField("rec.holdingsAgencyId", id);
             return this;
         }
 
