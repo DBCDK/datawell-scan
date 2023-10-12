@@ -62,7 +62,7 @@ public class UpdateIT extends DB {
         );
 
         ProfileDB profileDB = new ProfileDB(PG_URL);
-        SolrApi solrApi = new SolrApi(ZK_URL + "corepo");
+        SolrApi solrApi = new SolrApi(ZK_URL);
         Profile profile = new Profile(asList("102030-foo",
                                              "102030-bar"));
         profileDB.updateProfiles(profileDB.readProfiles(), new HashMap<String, Profile>() {
