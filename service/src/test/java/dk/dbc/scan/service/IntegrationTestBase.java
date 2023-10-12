@@ -55,6 +55,7 @@ public class IntegrationTestBase {
                                 .build());
         GenericContainer solr = new GenericContainer(image)
                 .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("dk.dbc.SOLR")))
+                .withEnv("SOLR_ENABLE_STREAM_BODY", "true")
                 .withEnv("ZKSTRING", "localhost")
                 .withExposedPorts(8983)
                 .waitingFor(Wait.forHttp("/solr/corepo/select?q=*:*"))
