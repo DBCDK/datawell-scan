@@ -1,0 +1,17 @@
+{
+  "id": "21308012-46c4-311f-9f03-bf5994ef4cad",
+  "request": {
+    "url": "/vipcore/profileservice/search/777777/xxx",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "body-profile-777777-xxx.json",
+    "headers": {
+      "server": "Payara Micro #badassfish",
+      "content-type": "application/json",
+      "x-frame-options": "SAMEORIGIN"
+    }
+  },
+  "uuid": "21308012-46c4-311f-9f03-bf5994ef4cad"
+}
