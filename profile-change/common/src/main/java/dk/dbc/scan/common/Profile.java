@@ -118,13 +118,10 @@ public class Profile extends HashSet<String> {
      * @param after                 How profiles are supposed to be
      * @param collectionIdentifiers Which collectionIdentifiers were affected
      *                              (output)
-     * @param holdingsAgencyIds     Which agencies had holdings that were
-     *                              affected (output)
      */
     public static void allAffectedCollections(Map<String, Profile> before,
                                               Map<String, Profile> after,
-                                              Set<String> collectionIdentifiers,
-                                              Set<String> holdingsAgencyIds) {
+                                              Set<String> collectionIdentifiers) {
         HashSet<String> allProfileNames = new HashSet<>();
         allProfileNames.addAll(before.keySet());
         allProfileNames.addAll(after.keySet());
@@ -133,12 +130,6 @@ public class Profile extends HashSet<String> {
             Profile a = after.getOrDefault(profileName, EMPTY);
             Set<String> difference = b.difference(a);
             collectionIdentifiers.addAll(difference);
-            String agencyId = profileName.split("-", 2)[0];
-            // If own -katalog is included then include all holdings
-            // regardless of whom own the record.
-            String holdingsName = ( agencyId ) + "-katalog";
-            if (difference.contains(holdingsName))
-                holdingsAgencyIds.add(agencyId);
         });
     }
 
