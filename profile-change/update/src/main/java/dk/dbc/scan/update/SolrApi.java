@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.CloudHttp2SolrClient;
 import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.client.solrj.io.SolrClientCache;
 import org.apache.solr.client.solrj.io.Tuple;
@@ -71,12 +71,9 @@ public class SolrApi {
                 zkChroot = Optional.of(zkMatcher.group(2));
             }
             List<String> zkHosts = Arrays.asList(zkMatcher.group(1).split(","));
-            CloudSolrClient solrClient = new CloudSolrClient.Builder(zkHosts, zkChroot)
+            return new CloudHttp2SolrClient.Builder(zkHosts, zkChroot)
+                    .withDefaultCollection(zkMatcher.group(3))
                     .build();
-
-            solrClient.setDefaultCollection(zkMatcher.group(3));
-
-            return solrClient;
         } else {
             return new Http2SolrClient.Builder(solrUrl)
                     .build();
