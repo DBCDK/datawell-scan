@@ -25,19 +25,13 @@ import dk.dbc.search.solrdocstore.db.DatabaseMigrator;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import jakarta.ws.rs.core.UriBuilder;
@@ -68,7 +62,7 @@ public class DB extends AbstractJpaTestBase {
 
     private static final GenericContainer SOLR = makeSolr();
     public static final String SOLR_URL = UriBuilder.fromUri(makeContainerUrl(SOLR, 8983)).path("solr").path("corepo").toString();
-    public static final URI ZK_URL = URI.create("zk://" + containerIp(SOLR) + ":9983/");
+    public static final String ZK_URL = "zk://" + containerIp(SOLR) + ":9983/corepo";
 
     @Override
     public void migrate(DataSource ds) {
@@ -83,7 +77,7 @@ public class DB extends AbstractJpaTestBase {
 
     @Override
     public Collection<String> keepContentOfTables() {
-        return Collections.singleton("flyway_schema_history");
+        return List.of("flyway_schema_history", "queuesuppliers", "schema_version", "solr_doc_store_queue_version", "queue_version");
     }
 
     private static String pgUrl() {
@@ -93,7 +87,7 @@ public class DB extends AbstractJpaTestBase {
 
     @Before
     public void setUpSolr() throws Exception {
-        solr = SolrApi.makeSolrClient(ZK_URL + "corepo");
+        solr = SolrApi.makeSolrClient(ZK_URL);
         solr.deleteByQuery("*:*");
         solr.commit();
     }

@@ -113,17 +113,12 @@ public class SolrApi {
                 .map(ManifestationId::new);
     }
 
-    public static String queryFrom(Set<String> collectionIdentifiers, Set<String> holdingsAgencyIds) {
-        return Stream.concat(
-                collectionIdentifiers.stream()
-                        .sorted() // For unittest matching
-                        .map(ClientUtils::escapeQueryChars)
-                        .map(s -> "rec.collectionIdentifier:" + s),
-                holdingsAgencyIds.stream()
-                        .sorted() // For unittest matching
-                        .map(ClientUtils::escapeQueryChars)
-                        .map(s -> "rec.holdingsAgencyId:" + s)
-        ).collect(Collectors.joining(" OR "));
+    public static String queryFrom(Set<String> collectionIdentifiers) {
+        return collectionIdentifiers.stream()
+                .sorted() // For unittest matching
+                .map(ClientUtils::escapeQueryChars)
+                .map(s -> "rec.collectionIdentifier:" + s)
+                .collect(Collectors.joining(" OR "));
     }
 
     private static StreamFactory makeStreamFactory(String solrUrl) {

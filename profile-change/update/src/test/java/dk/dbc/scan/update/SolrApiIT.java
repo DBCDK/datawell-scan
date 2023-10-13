@@ -46,7 +46,7 @@ public class SolrApiIT extends DB {
         );
 
         ArrayList<String> manifestationIds = new ArrayList<>();
-        SolrApi solrApi = new SolrApi(ZK_URL + "corepo");
+        SolrApi solrApi = new SolrApi(ZK_URL);
         solrApi.manifestationIdStreamOf("*:*")
                 .map(Object::toString)
                 .forEach(manifestationIds::add);

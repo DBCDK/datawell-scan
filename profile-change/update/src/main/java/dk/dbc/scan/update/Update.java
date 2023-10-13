@@ -74,9 +74,8 @@ public class Update {
     private boolean requeue(Map<String, Profile> storedProfiles, HashMap<String, Profile> currentProfiles, SolrDocStoreDB solrDocStoreDb, SolrApi solrApi, List<String> queues, int batchSize) throws IOException, SQLException {
 
         HashSet<String> collectionIdentifiers = new HashSet<>();
-        HashSet<String> holdingsAgencies = new HashSet<>();
-        Profile.allAffectedCollections(storedProfiles, currentProfiles, collectionIdentifiers, holdingsAgencies);
-        if (collectionIdentifiers.isEmpty() && holdingsAgencies.isEmpty()) {
+        Profile.allAffectedCollections(storedProfiles, currentProfiles, collectionIdentifiers);
+        if (collectionIdentifiers.isEmpty()) {
             System.err.println("No changes was identified!?!");
             return false;
         }
@@ -84,14 +83,11 @@ public class Update {
         collectionIdentifiers.stream()
                 .sorted()
                 .forEach(c -> System.out.println("  collection-identifier: " + c));
-        holdingsAgencies.stream()
-                .sorted()
-                .forEach(a -> System.out.println("  holdings-for-agency: " + a));
         log.info("Requeueing to:");
         queues.stream()
                 .sorted()
                 .forEach(q -> System.out.println("  queue: " + q));
-        String query = SolrApi.queryFrom(collectionIdentifiers, holdingsAgencies);
+        String query = SolrApi.queryFrom(collectionIdentifiers);
         log.debug("using query: {}", query);
         try (Connection connection = solrDocStoreDb.getConnection() ;
              BatchQueueSupplier<QueueJob> supplier = new QueueSupplier<>(QueueJob.STORAGE_ABSTRACTION)

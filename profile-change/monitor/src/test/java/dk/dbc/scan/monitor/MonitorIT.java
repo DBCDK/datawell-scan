@@ -51,37 +51,9 @@ import static org.mockito.Mockito.when;
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
  */
-public class MonitorIT extends AbstractJpaTestBase {
+public class MonitorIT extends DB {
 
-    public static final String PG_URL = pgUrl();
     private ProfileDB profileDb;
-
-    @Override
-    public void migrate(DataSource ds) {
-        ProfileDB.migrate(ds);
-    }
-
-    @Override
-    public String persistenceUnitName() {
-        return null;
-    }
-
-    @Override
-    public Collection<String> keepContentOfTables() {
-        return Collections.singleton("flyway_schema_history");
-    }
-
-    private static String pgUrl() {
-        String ip = PG.getContainerInfo()
-                .getNetworkSettings()
-                .getNetworks()
-                .values()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No docker network available"))
-                .getIpAddress();
-        return PG.getUsername() + ":" + PG.getPassword() + "@" + ip + ":5432/" + PG.getDatabaseName();
-    }
 
     @Before
     public void setUp() {

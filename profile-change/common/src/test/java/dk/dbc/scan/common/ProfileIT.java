@@ -28,7 +28,6 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
-
 /**
  *
  * @author Morten Bøgeskov (mb@dbc.dk)
@@ -67,12 +66,10 @@ public class ProfileIT {
         };
 
         HashSet<String> collectionIdentifiers = new HashSet<>();
-        HashSet<String> holdingsAgencyIds = new HashSet<>();
 
-        Profile.allAffectedCollections(before, after, collectionIdentifiers, holdingsAgencyIds);
+        Profile.allAffectedCollections(before, after, collectionIdentifiers);
 
         System.out.println("collectionIdentifiers = " + collectionIdentifiers);
-        System.out.println("holdingsAgencyIds = " + holdingsAgencyIds);
 
         assertThat(collectionIdentifiers, containsInAnyOrder(
                    "123456-katalog", // removed from 123456-foo
@@ -80,10 +77,6 @@ public class ProfileIT {
                    "345678-katalog", "888888-extra", // removed from 345678-foo
                    "777777-extra" // added to 456789-foo
            ));
-        assertThat(holdingsAgencyIds, containsInAnyOrder(
-                "123456", // removed from 123456-foo
-                "345678" // removed from 345678-foo
-        ));
 
     }
 }
