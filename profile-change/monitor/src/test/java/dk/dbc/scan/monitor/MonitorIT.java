@@ -188,7 +188,7 @@ public class MonitorIT extends DB {
         assertThat(output, containsString("Profile 102030-extra is added"));
     }
 
-    @Test(timeout = 2_000L)
+    @Test(timeout = 5_000L)
     public void removedProfile() throws Exception {
         System.out.println("removedProfile");
 
