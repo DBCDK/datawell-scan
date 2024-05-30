@@ -169,27 +169,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj</artifactId>
-                <version>${solr.version}</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj-streaming</artifactId>
-                <version>${solr.version}</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj-zookeeper</artifactId>
-                <version>${solr.version}</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
                 <!-- 3.1.0 from super-pom doesn't work with jakarta -->

@@ -22,10 +22,6 @@
     <version>2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <solr.version>9.4.0</solr.version>
-    </properties>
-
     <modules>
         <module>service</module>
         <module>profile-change</module>
@@ -33,6 +29,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>dk.dbc</groupId>
+                <artifactId>dbc-solr9</artifactId>
+                <version>latest-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>dk.dbc</groupId>
                 <artifactId>dbc-commons-log</artifactId>
@@ -43,24 +47,6 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>annotations</artifactId>
                 <version>3.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj</artifactId>
-                <version>${solr.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj-streaming</artifactId>
-                <version>${solr.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj-zookeeper</artifactId>
-                <version>${solr.version}</version>
             </dependency>
 
             <dependency>
