@@ -18,10 +18,6 @@ if (env.BRANCH_NAME == 'master') {
 }
 pipeline {
     agent { label workerNode }
-    tools {
-        maven "Maven 3"
-        jdk "jdk11"
-    }
     environment {
         MAVEN_OPTS = "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
         DOCKER_PUSH_TAG = "${env.BUILD_NUMBER}"
@@ -163,7 +159,7 @@ pipeline {
     }
     post {
         success {
-            step([$class: 'JavadocArchiver', javadocDir: 'target/site/apidocs', keepAll: false])
+            step([$class: 'JavadocArchiver', javadocDir: 'target/reports/apidocs', keepAll: false])
             archiveArtifacts artifacts: '**/target/*-jar-with-dependencies.jar', fingerprint: true
         }
     }
