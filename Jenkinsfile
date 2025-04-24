@@ -26,6 +26,9 @@ pipeline {
     triggers {
         pollSCM("H/3 * * * *")
     }
+    tools {
+        maven 'maven 3.9'
+    }
     options {
         buildDiscarder(logRotator(artifactDaysToKeepStr: "", artifactNumToKeepStr: "", daysToKeepStr: "30", numToKeepStr: "30"))
         timestamps()
