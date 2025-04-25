@@ -42,6 +42,12 @@
             <groupId>dk.dbc</groupId>
             <artifactId>solr-doc-store-queue</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
