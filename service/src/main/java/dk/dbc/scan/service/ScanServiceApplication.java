@@ -18,8 +18,7 @@
  */
 package dk.dbc.scan.service;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import dk.dbc.commons.payara.helpers.MDCRequestInfo;
 import java.util.Set;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
@@ -31,11 +30,11 @@ import jakarta.ws.rs.core.Application;
 @ApplicationPath("api")
 public class ScanServiceApplication extends Application {
 
-    private static final Set<Class<?>> CLASSES = new HashSet<>(
-            Arrays.asList(
-                    Scan.class,
-                    StatusBean.class
-            ));
+    private static final Set<Class<?>> CLASSES = Set.of(
+            Scan.class,
+            StatusBean.class,
+            MDCRequestInfo.class
+    );
 
     @Override
     public Set<Class<?>> getClasses() {
