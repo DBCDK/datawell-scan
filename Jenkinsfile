@@ -1,5 +1,9 @@
+#!groovy
+
+@Library('dependency-track')
+
 def dockerRepository = 'https://docker-de.artifacts.dbccloud.dk'
-def workerNode = 'devel11'
+def workerNode = 'devel12'
 
 properties([
     disableConcurrentBuilds()
@@ -49,12 +53,7 @@ pipeline {
                         rm -rf \$WORKSPACE/.repo
                         mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo dependency:resolve dependency:resolve-plugins >/dev/null 2>&1 || true
                         mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo clean
-                        mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo --fail-at-end org.jacoco:jacoco-maven-plugin:prepare-agent install -Dsurefire.useFile=false
-                    """
-
-                    // We want code-coverage and pmd/findbugs even if unittests fails
-                    status += sh returnStatus: true, script:  """
-                        mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo pmd:pmd pmd:cpd javadoc:aggregate spotbugs:spotbugs -Dspotbugs.excludeFilterFile=src/test/spotbugs/spotbugs-exclude.xml
+                        mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo --fail-at-end install javadoc:aggregate -Dsurefire.useFile=false
                     """
 
                     junit testResults: '**/target/*-reports/TEST-*.xml'
@@ -62,22 +61,6 @@ pipeline {
                     def java = scanForIssues tool: [$class: 'Java']
                     def javadoc = scanForIssues tool: [$class: 'JavaDoc']
                     publishIssues issues:[java, javadoc], unstableTotalAll:1
-
-                    def pmd = scanForIssues tool: [$class: 'Pmd'], pattern: '**/target/pmd.xml'
-                    publishIssues issues:[pmd], unstableTotalAll:1
-
-                    def cpd = scanForIssues tool: [$class: 'Cpd'], pattern: '**/target/cpd.xml'
-                    publishIssues issues:[cpd]
-
-                    def spotbugs = scanForIssues tool: [$class: 'SpotBugs'], pattern: '**/target/spotbugsXml.xml'
-                    publishIssues issues:[spotbugs], unstableTotalAll:1
-
-                    step([$class: 'JacocoPublisher',
-                          execPattern: 'target/*.exec,**/target/*.exec',
-                          classPattern: 'target/classes,**/target/classes',
-                          sourcePattern: 'src/main/java,**/src/main/java',
-                          exclusionPattern: 'src/test*,**/src/test*,**/*?Request.*,**/*?Response.*,**/*?Request$*,**/*?Response$*,**/*?DTO.*,**/*?DTO$*'
-                    ])
 
                     warnings consoleParsers: [
                          [parserName: "Java Compiler (javac)"],
@@ -91,7 +74,31 @@ pipeline {
                 }
             }
         }
+        stage("sonarqube") {
+            steps {
+                ansiColor('xterm') {
+                    withSonarQubeEnv(installationName: 'sonarqube.dbc.dk') {
+                        script {
+                            def status = 0
 
+                            def sonarOptions = "-Dsonar.branch.name=${BRANCH_NAME}"
+                            if (env.BRANCH_NAME != 'main') {
+                                sonarOptions += " -Dsonar.newCode.referenceBranch=main"
+                            }
+
+                            // Do sonar via maven
+                            status += sh returnStatus: true, script: """
+                                mvn -B -Dmaven.repo.local=$WORKSPACE/.repo --no-transfer-progress $sonarOptions sonar:sonar
+                            """
+
+                            if (status != 0) {
+                                error("build failed")
+                            }
+                        }
+                    }
+                }
+            }
+        }
         stage("docker") {
             steps {
                 script {
@@ -137,7 +144,17 @@ pipeline {
                 }
             }
         }
-
+        stage("supply-chain gate") {
+            steps {
+                script {
+                    dependencyTrackGate(
+                        projectBom:  'target/sbom-java.json',
+                        projectTeam: 'de-team',
+                        projectType: 'java'
+                    )
+                }
+            }
+        }
         stage("Update DIT") {
             agent {
                 docker {
