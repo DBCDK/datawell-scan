@@ -58,7 +58,7 @@ pipeline {
 
                         // We want code-coverage and pmd/findbugs even if unittests fails
                         status += sh returnStatus: true, script:  """
-                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo javadoc:aggregate
+                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo javadoc:aggregate sonar:sonar
                         """
 
                         junit testResults: '**/target/*-reports/TEST-*.xml'
