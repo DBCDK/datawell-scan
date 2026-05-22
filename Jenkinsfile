@@ -67,13 +67,6 @@ pipeline {
                         def javadoc = scanForIssues tool: [$class: 'JavaDoc']
                         publishIssues issues:[java, javadoc], unstableTotalAll:1
 
-                        step([$class: 'JacocoPublisher',
-                            execPattern: 'target/*.exec,**/target/*.exec',
-                            classPattern: 'target/classes,**/target/classes',
-                            sourcePattern: 'src/main/java,**/src/main/java',
-                            exclusionPattern: 'src/test*,**/src/test*,**/*?Request.*,**/*?Response.*,**/*?Request$*,**/*?Response$*,**/*?DTO.*,**/*?DTO$*'
-                        ])
-
                         warnings consoleParsers: [
                             [parserName: "Java Compiler (javac)"],
                             [parserName: "JavaDoc Tool"]],
