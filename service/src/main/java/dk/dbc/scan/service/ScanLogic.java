@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Stateless;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
@@ -42,7 +41,7 @@ public class ScanLogic {
 
     private static final Logger log = LoggerFactory.getLogger(ScanLogic.class);
 
-    private static final Iterator<String> EMPTY_ITERATOR = List.of().iterator();
+    private static final Iterator EMPTY_ITERATOR = List.of().iterator();
 
     @Inject
     Config config;
