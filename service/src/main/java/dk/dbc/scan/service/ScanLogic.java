@@ -42,7 +42,7 @@ public class ScanLogic {
 
     private static final Logger log = LoggerFactory.getLogger(ScanLogic.class);
 
-    private static final Iterator<?> EMPTY_ITERATOR = List.of().iterator();
+    private static final Iterator<String> EMPTY_ITERATOR = List.of().iterator();
 
     @Inject
     Config config;
