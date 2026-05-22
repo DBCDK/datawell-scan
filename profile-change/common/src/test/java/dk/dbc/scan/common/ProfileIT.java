@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 public class ProfileIT {
 
     @Test(timeout = 2_000L)
-    public void testProfileDifference() throws Exception {
+    public void testProfileDifference() {
         System.out.println("testProfileDifference");
 
         Profile before = new Profile("a", "b", "c");
@@ -47,7 +47,7 @@ public class ProfileIT {
     }
 
     @Test(timeout = 2_000L)
-    public void testAllAffectedCollections() throws Exception {
+    public void testAllAffectedCollections() {
         System.out.println("testAllAffectedCollections");
 
         Map<String, Profile> before = new HashMap<String, Profile>() {

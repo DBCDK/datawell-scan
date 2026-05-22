@@ -4,7 +4,7 @@
     <parent>
         <groupId>dk.dbc</groupId>
         <artifactId>datawell-scan-profile-change</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>21.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>datawell-scan-profile-change-common</artifactId>
     <packaging>jar</packaging>
@@ -15,6 +15,19 @@
             <artifactId>vipcore</artifactId>
             <version>2.0-SNAPSHOT</version>
             <classifier>vipcore-client</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
         <dependency>
@@ -32,7 +45,7 @@
 
         <dependency>
             <groupId>dk.dbc</groupId>
-            <artifactId>dbc-commons-testcontainers-postgres</artifactId>
+            <artifactId>dbc-commons-testcontainers-postgres-17</artifactId>
             <version>2.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
@@ -40,7 +53,7 @@
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>dbc-commons-wiremock-testutil</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>3.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

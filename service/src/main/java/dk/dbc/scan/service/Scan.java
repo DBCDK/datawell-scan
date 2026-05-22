@@ -106,7 +106,12 @@ public class Scan {
                 throw failure(ex.getMessage(), requestParam, Response.Status.BAD_REQUEST);
             } catch (WebApplicationException ex) {
                 throw ex;
-            } catch (SolrServerException | IOException | InterruptedException | RuntimeException ex) {
+            } catch (InterruptedException ex) {
+                log.error("Error processing request: {}", ex.getMessage());
+                log.debug("Error processing request: ", ex);
+                Thread.currentThread().interrupt();
+                throw failure("Internal server error", requestParam, Response.Status.INTERNAL_SERVER_ERROR);
+            } catch (SolrServerException | IOException | RuntimeException ex) {
                 log.error("Error processing request: {}", ex.getMessage());
                 log.debug("Error processing request: ", ex);
                 throw failure("Internal server error", requestParam, Response.Status.INTERNAL_SERVER_ERROR);

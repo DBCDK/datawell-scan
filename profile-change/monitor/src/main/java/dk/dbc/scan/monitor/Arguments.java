@@ -63,28 +63,28 @@ public class Arguments {
                 .addOption(this.help = Option.builder("h")
                         .longOpt("help")
                         .desc("this help")
-                        .build())
+                        .get())
                 .addOption(this.verbose = Option.builder("v")
                         .longOpt("verbose")
                         .desc("debug log")
-                        .build())
+                        .get())
                 .addOption(this.quiet = Option.builder("q")
                         .longOpt("quiet")
                         .desc("log only errors")
-                        .build())
+                        .get())
                 .addOption(this.db = Option.builder("d")
                         .longOpt("database")
                         .hasArg()
                         .required()
                         .argName("DB")
                         .desc("Database url")
-                        .build())
+                        .get())
                 .addOption(this.vipCore = Option.builder("V")
                         .longOpt("vipcore")
                         .hasArg()
                         .required().argName("URL")
                         .desc("VipCore endpoint")
-                        .build());
+                        .get());
         try {
             Stream.Builder<String> missing = parseAsNonRequired(args, help);
 

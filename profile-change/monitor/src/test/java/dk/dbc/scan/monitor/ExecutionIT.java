@@ -24,11 +24,12 @@ public class ExecutionIT extends DB {
 
         try (WireMockFromDirectory wireMock = new WireMockFromDirectory()) {
             String java = ProcessHandle.current().info().command().orElse("java");
-            Process process = Runtime.getRuntime().exec(new String[] {java, "-jar", "target/datawell-scan-profile-change-monitor-jar-with-dependencies.jar",
+            Process process = Runtime.getRuntime().exec(new String[] {java, "-jar", "target/datawell-scan-profile-change-monitor-shaded.jar",
                                                                       "-d", PG_URL,
                                                                       "-V", wireMock.url("vipcore"),
                                                                       "777777-xxx"})
                     .onExit().get();
+            assertThat(process.exitValue(), is(1));
             byte[] stdout = process.getInputStream().readAllBytes();
             System.out.write(stdout);
             System.err.write(process.getErrorStream().readAllBytes());

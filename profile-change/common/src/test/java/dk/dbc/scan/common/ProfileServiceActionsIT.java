@@ -45,7 +45,7 @@ public class ProfileServiceActionsIT {
             Profile profile = psa.getProfile("102030-danbib");
             assertThat(profile.contains("800000-danbib"), is(true));
             assertThat(profile.contains("870970-danbib"), is(true));
-        };
+        }
     }
 
     @Test(timeout = 5_000L)

@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class GenericPostgreSQL extends PGSimpleDataSource {
 
-    private static final Pattern POSTGRES_URL_REGEX = Pattern.compile("(?:postgres(?:ql)?://)?(?:([^:@]+)(?::([^@]*))@)?([^:/]+)(?::([1-9][0-9]*))?/(.+)");
+    private static final Pattern POSTGRES_URL_REGEX = Pattern.compile("(?:postgres(?:ql)?://)?(?:([^:@]+):([^@]*)@)?([^:/]+)(?::([1-9]\\d*))?/(.+)");
 
     public GenericPostgreSQL(String url) {
         Matcher matcher = POSTGRES_URL_REGEX.matcher(url);

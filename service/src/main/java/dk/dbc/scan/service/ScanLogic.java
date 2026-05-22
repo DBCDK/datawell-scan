@@ -20,12 +20,10 @@ package dk.dbc.scan.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Stateless;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
@@ -43,7 +41,7 @@ public class ScanLogic {
 
     private static final Logger log = LoggerFactory.getLogger(ScanLogic.class);
 
-    private static final Iterator EMPTY_ITERATOR = Collections.EMPTY_LIST.iterator();
+    private static final Iterator EMPTY_ITERATOR = List.of().iterator();
 
     @Inject
     Config config;
@@ -79,7 +77,7 @@ public class ScanLogic {
      */
     private synchronized void inFlightDone() {
         hitCountInFlight.decrementAndGet();
-        notify();
+        notifyAll();
     }
 
     /**
@@ -198,7 +196,7 @@ public class ScanLogic {
 
         List<ScanResponse.Term> allResponseTerms = termsFound.stream()
                 .filter(ScanResponse.Term::hasTerms)
-                .collect(Collectors.toList());
+                .toList();
         int totalHitValidated = allResponseTerms.size();
         int validTermCount = Integer.min(count, totalHitValidated);
         List<ScanResponse.Term> responseTerms = allResponseTerms.subList(0, validTermCount);

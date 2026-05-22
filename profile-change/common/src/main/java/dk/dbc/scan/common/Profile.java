@@ -31,7 +31,7 @@ import java.util.function.Predicate;
  */
 public class Profile extends HashSet<String> {
 
-    public final static Profile EMPTY = new Profile() {
+    protected static final Profile EMPTY = new Profile() {
         @Override
         public boolean add(String e) {
             throw new IllegalStateException("Cannot modify an EMPTY collection");

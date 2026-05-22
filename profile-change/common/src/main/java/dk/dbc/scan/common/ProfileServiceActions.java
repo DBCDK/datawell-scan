@@ -63,12 +63,8 @@ public class ProfileServiceActions {
 
     public URI getUri(int agencyId, String profileName) {
         return uriBuilder.clone()
-                .buildFromMap(new HashMap<String, Object>() {
-                    {
-                        put("agencyId", agencyId);
-                        put("profileName", profileName);
-                    }
-                });
+                .buildFromMap(Map.of("agencyId", agencyId,
+                                     "profileName", profileName));
     }
 
     public Profile getProfile(String profile) throws IOException {
@@ -76,8 +72,7 @@ public class ProfileServiceActions {
         URI uri = getUri(Integer.parseInt(parts[0]), parts[1]);
         try (InputStream is = client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(InputStream.class))
-        {
+                .get(InputStream.class)) {
             ProfileServiceResponse resp = O.readValue(is, ProfileServiceResponse.class);
             if (resp.getError() != null) {
                 log.warn("Got an error: {} for: {}", resp.getError().value(), uri);
