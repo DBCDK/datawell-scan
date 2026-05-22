@@ -51,9 +51,7 @@ pipeline {
 
                         def status = sh returnStatus: true, script:  """
                             rm -rf \$WORKSPACE/.repo/dk/dbc
-                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo dependency:resolve dependency:resolve-plugins >/dev/null 2>&1 || true
-                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo clean
-                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo --no-transfer-progress -Dsurefire.useFile=false install
+                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo --no-transfer-progress -Dsurefire.useFile=false clean install
                         """
 
                         // We want code-coverage and pmd/findbugs even if unittests fails
