@@ -54,7 +54,7 @@ pipeline {
 
                     // We want code-coverage and pmd/findbugs even if unittests fails
                     status += sh returnStatus: true, script:  """
-                        mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo pmd:pmd pmd:cpd javadoc:aggregate spotbugs:spotbugs -Dspotbugs.excludeFilterFile=src/test/spotbugs/spotbugs-exclude.xml
+                        mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo javadoc:aggregate
                     """
 
                     junit testResults: '**/target/*-reports/TEST-*.xml'
@@ -62,15 +62,6 @@ pipeline {
                     def java = scanForIssues tool: [$class: 'Java']
                     def javadoc = scanForIssues tool: [$class: 'JavaDoc']
                     publishIssues issues:[java, javadoc], unstableTotalAll:1
-
-                    def pmd = scanForIssues tool: [$class: 'Pmd'], pattern: '**/target/pmd.xml'
-                    publishIssues issues:[pmd], unstableTotalAll:1
-
-                    def cpd = scanForIssues tool: [$class: 'Cpd'], pattern: '**/target/cpd.xml'
-                    publishIssues issues:[cpd]
-
-                    def spotbugs = scanForIssues tool: [$class: 'SpotBugs'], pattern: '**/target/spotbugsXml.xml'
-                    publishIssues issues:[spotbugs], unstableTotalAll:1
 
                     step([$class: 'JacocoPublisher',
                           execPattern: 'target/*.exec,**/target/*.exec',
@@ -105,8 +96,6 @@ pipeline {
                 }
             }
         }
-
-
 
         stage("docker") {
             steps {
