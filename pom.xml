@@ -23,7 +23,8 @@
     <packaging>pom</packaging>
 
     <properties>
-      <sonar.projectKey>datawell-scan</sonar.projectKey>
+        <sonar.projectKey>datawell-scan</sonar.projectKey>
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
     </properties>
 
     <modules>
