@@ -92,6 +92,22 @@ pipeline {
             }
         }
 
+        stage("supply-chain gate") {
+            steps {
+                script {
+                    dependencyTrackGate(
+                        projectBom:  'target/sbom-java.json',
+                        projectTeam: 'de-team',
+                        projectType: 'java',
+                        // Optional VEX file
+                        // projectVex: 'vex.json'
+                    )
+                }
+            }
+        }
+
+
+
         stage("docker") {
             steps {
                 script {
@@ -163,7 +179,7 @@ pipeline {
     post {
         success {
             step([$class: 'JavadocArchiver', javadocDir: 'target/reports/apidocs', keepAll: false])
-            archiveArtifacts artifacts: '**/target/*-jar-with-dependencies.jar', fingerprint: true
+            archiveArtifacts artifacts: '**/target/*-shaded.jar', fingerprint: true
         }
     }
 }

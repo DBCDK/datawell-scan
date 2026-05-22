@@ -31,7 +31,7 @@ public class ExecutionIT extends DB {
 
         try (WireMockFromDirectory wireMock = new WireMockFromDirectory()) {
             String java = ProcessHandle.current().info().command().orElse("java");
-            Process process = Runtime.getRuntime().exec(new String[] {java, "-jar", "target/datawell-scan-profile-change-update-jar-with-dependencies.jar",
+            Process process = Runtime.getRuntime().exec(new String[] {java, "-jar", "target/datawell-scan-profile-change-update-shaded.jar",
                                                                       "-d", PG_URL,
                                                                       "-s", ZK_URL,
                                                                       "-S", PG_URL,
