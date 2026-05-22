@@ -42,7 +42,6 @@ pipeline {
                         if (env.BRANCH_NAME != 'main') {
                             sonarOptions += " -Dsonar.newCode.referenceBranch=main"
                         }
-                    script {
                         if (! env.BRANCH_NAME) {
                             currentBuild.result = Result.ABORTED
                             throw new hudson.AbortException('Job Started from non MultiBranch Build')
