@@ -3,9 +3,6 @@ def workerNode = 'devel11'
 
 @Library('dependency-track')
 
-properties([
-    disableConcurrentBuilds()
-])
 if (env.BRANCH_NAME == 'master') {
     properties([
         pipelineTriggers([
@@ -34,6 +31,7 @@ pipeline {
     options {
         buildDiscarder(logRotator(artifactDaysToKeepStr: "", artifactNumToKeepStr: "", daysToKeepStr: "30", numToKeepStr: "30"))
         timestamps()
+        disableConcurrentBuilds()
     }
     stages {
         stage("build") {
