@@ -1,6 +1,8 @@
 def dockerRepository = 'https://docker-de.artifacts.dbccloud.dk'
 def workerNode = 'devel11'
 
+@Library('dependency-track')
+
 properties([
     disableConcurrentBuilds()
 ])
