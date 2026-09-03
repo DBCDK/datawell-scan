@@ -18,9 +18,8 @@
  */
 package dk.dbc.scan.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.inject.Inject;
 
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -35,15 +34,8 @@ import jakarta.ws.rs.ext.Provider;
 @Produces({MediaType.APPLICATION_JSON})
 public class JsonMapperProvider implements ContextResolver<ObjectMapper> {
 
-    private final ObjectMapper objectMapper;
-
-    public JsonMapperProvider() {
-        objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true)
-                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-    }
+    @Inject
+    private ObjectMapper objectMapper;
 
     @Override
     public ObjectMapper getContext(Class<?> aClass) {

@@ -18,6 +18,13 @@
  */
 package dk.dbc.scan.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +34,9 @@ import jakarta.ejb.LockType;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.ClientRequestContext;
@@ -47,6 +57,15 @@ import org.slf4j.LoggerFactory;
 public class Config {
 
     private static final Logger log = LoggerFactory.getLogger(Config.class);
+
+    public static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .build()
+            .registerModule(new JavaTimeModule())
+            .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
     private final Map<String, String> env;
 
@@ -130,4 +149,10 @@ public class Config {
         return env.getOrDefault(key, fallback);
     }
 
+    @Produces
+    @Default
+    @SuppressWarnings("java:S1172") // Unused method parameters should be removed (Produces needs an InjectionPoint)
+    public ObjectMapper objectMapper(InjectionPoint ip) {
+        return OBJECT_MAPPER;
+    }
 }
