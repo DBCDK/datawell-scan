@@ -116,7 +116,7 @@ public class IntegrationTestBase {
                     .pullImageCmd(from.getUnversionedPart())
                     .withTag(from.getVersionPart())
                     .start()
-                    .awaitCompletion(30, TimeUnit.SECONDS);
+                    .awaitCompletion(120, TimeUnit.SECONDS);
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         }

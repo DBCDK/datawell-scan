@@ -40,7 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class ScanIT extends IntegrationTestBase {
 
-    @Test(timeout = 20_000L)
+    @Test(timeout = 120_000L)
     public void testCase() throws Exception {
         System.out.println("testCase");
 

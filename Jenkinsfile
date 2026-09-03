@@ -26,7 +26,7 @@ pipeline {
         pollSCM("H/3 * * * *")
     }
     tools {
-        maven 'Maven 3'
+        maven 'maven 3.9'
     }
     options {
         buildDiscarder(logRotator(artifactDaysToKeepStr: "", artifactNumToKeepStr: "", daysToKeepStr: "30", numToKeepStr: "30"))
@@ -56,7 +56,7 @@ pipeline {
 
                         // We want code-coverage and pmd/findbugs even if unittests fails
                         status += sh returnStatus: true, script:  """
-                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo javadoc:aggregate sonar:sonar
+                            mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo --no-transfer-progress javadoc:aggregate sonar:sonar
                         """
 
                         junit testResults: '**/target/*-reports/TEST-*.xml'
