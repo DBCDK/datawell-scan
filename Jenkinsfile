@@ -150,7 +150,7 @@ pipeline {
         stage("Update DIT") {
             agent {
                 docker {
-                    label workerNode
+                    reuseNode true
                     image "docker-dbc.artifacts.dbccloud.dk/build-env:latest"
                     alwaysPull true
                 }
