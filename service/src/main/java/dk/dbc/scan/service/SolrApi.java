@@ -19,23 +19,27 @@
 package dk.dbc.scan.service;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
+import java.util.Iterator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudHttp2SolrClient;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.request.FieldAnalysisRequest;
+import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.request.SolrQuery;
+import org.apache.solr.client.solrj.response.AnalysisResponseBase;
+import org.apache.solr.client.solrj.response.FieldAnalysisResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.apache.solr.common.util.NamedList;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,32 +81,29 @@ public class SolrApi {
      */
     @Timed
     public String normalize(String fieldName, String fieldValue) throws SolrServerException, IOException {
-        ModifiableSolrParams req = new SolrQuery()
-                .setRequestHandler("/analysis/field")
-                .set("analysis.fieldname", fieldName)
-                .set("analysis.fieldvalue", fieldValue)
-                .set("appId", config.getAppId());
-        QueryResponse resp = config.getSolrClient().query(req);
+        FieldAnalysisResponse resp = new FieldAnalysisRequest("/analysis/field")
+                .setFieldNames(List.of(fieldName))
+                .setFieldValue(fieldValue)
+                .process(config.getSolrClient());
+        FieldAnalysisResponse.Analysis analysis = resp
+                .getFieldNameAnalysis(fieldName);
+        if (analysis != null) {
+            Iterator<AnalysisResponseBase.AnalysisPhase> iterator = analysis
+                    .getIndexPhases()
+                    .iterator();
+            if (iterator.hasNext()) {
+                AnalysisResponseBase.AnalysisPhase ap = iterator.next();
+                while (iterator.hasNext()) {
+                    ap = iterator.next();
+                }
+                List<AnalysisResponseBase.TokenInfo> tokens = ap.getTokens();
+                if (tokens.size() == 1) {
+                    return tokens.get(0).getText();
+                }
+            }
+        }
+        throw new SolrServerException("Cannot analyze text");
 
-        return Checker.of(resp)
-                .raises(o -> {
-                    log.warn("Error in response (FieldAnalysis): {}", o);
-                    return new SolrServerException("FieldAnalysis: malformed response");
-                })
-                .ensure(o -> o.getStatus() == 0)
-                .mapTo(o -> o.getResponse())
-                .ensure(o -> o.findRecursive("responseHeader", "status").equals(0))
-                .mapTo(o -> o.findRecursive("analysis", "field_names", fieldName, "index"))
-                .as(NamedList.class)
-                .ensure(o -> o.size() != 0) // Non-empty tokenizer/filter list
-                .mapTo(o -> o.getVal(o.size() - 1)) // last tokenizer/filter
-                .as(List.class)
-                .ensure(o -> o.size() == 1) // has not been tokenized
-                .mapTo(o -> o.get(0)) // get only element
-                .as(NamedList.class)
-                .mapTo(o -> o.get("text")) // "text" is tokenized input
-                .as(String.class)
-                .get();
     }
 
     /**
@@ -120,8 +121,7 @@ public class SolrApi {
      */
     @Timed
     public List<String> scan(String fieldName, String fieldValue, boolean cont, int count, String trackingId) throws SolrServerException, IOException {
-        ModifiableSolrParams req = new SolrQuery()
-                .setRequestHandler("/terms")
+        ModifiableSolrParams params = new SolrQuery()
                 .set("terms.sort", "index")
                 .set("terms.fl", fieldName)
                 .set("terms.lower", fieldValue)
@@ -130,9 +130,10 @@ public class SolrApi {
                 .set("terms.raw", false)
                 .set("trackingId", trackingId)
                 .set("appId", config.getAppId());
-        QueryResponse resp = config.getSolrClient().query(req);
+        QueryResponse resp = new QueryRequest("/terms", params)
+                .process(config.getSolrClient());
         if (resp.getStatus() != 0) {
-            log.warn("Error in request (terms): {} = {}", req, resp);
+            log.warn("Error in request (terms): {} = {}", params, resp);
             throw new SolrServerException("terms: error in request");
         }
         List<TermsResponse.Term> terms = resp.getTermsResponse().getTerms(fieldName);
@@ -177,16 +178,16 @@ public class SolrApi {
     public static SolrClient makeSolrClient(String solrUrl) {
         Matcher zkMatcher = ZK.matcher(solrUrl);
         if (zkMatcher.matches()) {
-            Optional<String> zkChroot = Optional.empty();
-            if (zkMatcher.group(2) != null) {
-                zkChroot = Optional.of(zkMatcher.group(2));
-            }
-            List<String> zkHosts = Arrays.asList(zkMatcher.group(1).split(","));
-            return new CloudHttp2SolrClient.Builder(zkHosts, zkChroot)
+            String zkConnectString = Stream.of(zkMatcher.group(1).split(","))
+                    .map(s -> s.indexOf(':') == -1 ? s + ":2181" : s)
+                    .collect(Collectors.joining(","));
+            if (zkMatcher.group(2) != null)
+                zkConnectString = zkConnectString + zkMatcher.group(2);
+            return new CloudHttp2SolrClient.Builder(zkConnectString)
                     .withDefaultCollection(zkMatcher.group(3))
                     .build();
         } else {
-            return new Http2SolrClient.Builder(solrUrl)
+            return HttpSolrClient.builder(solrUrl)
                     .build();
         }
     }

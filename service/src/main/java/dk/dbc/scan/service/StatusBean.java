@@ -27,7 +27,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
+import org.apache.solr.client.solrj.request.HealthCheckRequest;
+import org.apache.solr.client.solrj.response.HealthCheckResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +50,11 @@ public class StatusBean {
     public Status getStatus() {
         log.info("getStatus called");
         try {
-            SolrPingResponse ping = config.getSolrClient().ping();
+            HealthCheckResponse ping = new HealthCheckRequest()
+                    .process(config.getSolrClient());
             if (ping.getStatus() == 0)
                 return new Status();
-            return new Status("status: " + ping.getStatus());
+            return new Status("status: " + ping.getStatus() + " message: " + ping.getMessage());
         } catch (SolrServerException | IOException ex) {
             return new Status(ex.getMessage());
         }
