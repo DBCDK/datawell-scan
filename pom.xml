@@ -25,6 +25,8 @@
     <properties>
         <sonar.projectKey>datawell-scan</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <solr.version>10.1.0</solr.version>
+        <netty.version>4.1.137.Final</netty.version>
     </properties>
 
     <modules>
@@ -36,16 +38,34 @@
         <dependencies>
             <dependency>
                 <groupId>dk.dbc</groupId>
-                <artifactId>dbc-solr9</artifactId>
-                <version>latest-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <artifactId>dbc-commons-log</artifactId>
+                <version>21.2.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>dk.dbc</groupId>
-                <artifactId>dbc-commons-log</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj</artifactId>
+                <version>${solr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj-streaming</artifactId>
+                <version>${solr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj-zookeeper</artifactId>
+                <version>${solr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>

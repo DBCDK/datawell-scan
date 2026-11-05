@@ -19,9 +19,6 @@
 package dk.dbc.scan.update;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -32,7 +29,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudHttp2SolrClient;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.io.SolrClientCache;
 import org.apache.solr.client.solrj.io.Tuple;
 import org.apache.solr.client.solrj.io.stream.StreamContext;
@@ -66,16 +64,16 @@ public class SolrApi {
     public static SolrClient makeSolrClient(String solrUrl) {
         Matcher zkMatcher = ZK.matcher(solrUrl);
         if (zkMatcher.matches()) {
-            Optional<String> zkChroot = Optional.empty();
-            if (zkMatcher.group(2) != null) {
-                zkChroot = Optional.of(zkMatcher.group(2));
-            }
-            List<String> zkHosts = Arrays.asList(zkMatcher.group(1).split(","));
-            return new CloudHttp2SolrClient.Builder(zkHosts, zkChroot)
+            String zkConnectString = Stream.of(zkMatcher.group(1).split(","))
+                    .map(s -> s.indexOf(':') == -1 ? s + ":2181" : s)
+                    .collect(Collectors.joining(","));
+            if (zkMatcher.group(2) != null)
+                zkConnectString = zkConnectString + zkMatcher.group(2);
+            return new CloudHttp2SolrClient.Builder(zkConnectString)
                     .withDefaultCollection(zkMatcher.group(3))
                     .build();
         } else {
-            return new Http2SolrClient.Builder(solrUrl)
+            return HttpSolrClient.builder(solrUrl)
                     .build();
         }
     }
@@ -125,13 +123,16 @@ public class SolrApi {
         Matcher zkMatcher = ZK.matcher(solrUrl);
         if (!zkMatcher.matches())
             throw new IllegalArgumentException("SolR url: " + solrUrl + " is not a zookeeper url");
-        String hostChroot = zkMatcher.group(1);
+
+        String zkConnectString = Stream.of(zkMatcher.group(1).split(","))
+                .map(s -> s.indexOf(':') == -1 ? s + ":2181" : s)
+                .collect(Collectors.joining(","));
         if (zkMatcher.group(2) != null)
-            hostChroot = hostChroot + zkMatcher.group(2);
+            zkConnectString = zkConnectString + zkMatcher.group(2);
+
         return new DefaultStreamFactory()
-                .withCollectionZkHost(
-                        zkMatcher.group(3),
-                        hostChroot);
+                .withCollectionUseThisConnection(zkMatcher.group(3),
+                                                 CloudSolrClient.CloudSolrClientConnection.parse(zkConnectString));
     }
 
     private static StreamExpressionNamedParameter p(String key, String value) {
