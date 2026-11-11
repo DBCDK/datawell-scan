@@ -25,15 +25,14 @@ import java.util.regex.Pattern;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import java.util.Iterator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudHttp2SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.apache.solr.client.solrj.request.FieldAnalysisRequest;
 import org.apache.solr.client.solrj.request.QueryRequest;
-import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.response.AnalysisResponseBase;
 import org.apache.solr.client.solrj.response.FieldAnalysisResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -178,16 +177,16 @@ public class SolrApi {
     public static SolrClient makeSolrClient(String solrUrl) {
         Matcher zkMatcher = ZK.matcher(solrUrl);
         if (zkMatcher.matches()) {
-            String zkConnectString = Stream.of(zkMatcher.group(1).split(","))
-                    .map(s -> s.indexOf(':') == -1 ? s + ":2181" : s)
-                    .collect(Collectors.joining(","));
-            if (zkMatcher.group(2) != null)
-                zkConnectString = zkConnectString + zkMatcher.group(2);
-            return new CloudHttp2SolrClient.Builder(zkConnectString)
+            Optional<String> zkChroot = Optional.empty();
+            if (zkMatcher.group(2) != null) {
+                zkChroot = Optional.of(zkMatcher.group(2));
+            }
+            List<String> zkHosts = List.of(zkMatcher.group(1).split(","));
+            return new CloudHttp2SolrClient.Builder(zkHosts, zkChroot)
                     .withDefaultCollection(zkMatcher.group(3))
                     .build();
         } else {
-            return HttpSolrClient.builder(solrUrl)
+            return new Http2SolrClient.Builder(solrUrl)
                     .build();
         }
     }
